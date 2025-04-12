@@ -1,0 +1,3 @@
+export default function Left() {
+    return <svg fill="#FFFFFF" viewBox="-9.5 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#FFFFFF"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>left</title> <path d="M12.52 22.24c-0.12 0-0.24-0.040-0.36-0.080l-11.68-5.4c-0.28-0.12-0.48-0.44-0.48-0.76s0.2-0.64 0.48-0.76l11.64-5.4c0.24-0.12 0.56-0.12 0.8 0.040s0.4 0.44 0.4 0.72v10.84c0 0.28-0.16 0.56-0.4 0.72-0.12 0.040-0.28 0.080-0.4 0.080zM2.88 16l8.8 4.12v-8.24l-8.8 4.12z"></path> </g></svg>
+}
