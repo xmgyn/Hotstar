@@ -3,14 +3,13 @@ import Navbar from '../components/Navbar'
 import Like from '../assets/Like'
 
 import './Home.css'
-import Play from '../assets/Play'
 
 function Home() {
 
   return (
     <>
       <div className="Hero-Image-Container">
-        <img src="/raya.jpg" style={{ height: '100%' }} />
+        <img src="/raya.jpg" style={{ minHeight: '100%', width: '100%' }} />
       </div>
       <div className="Hero-Image-Overlay"></div>
       <Navbar />
