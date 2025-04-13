@@ -2,12 +2,12 @@ import Express from 'express'
 import { MongoClient, ObjectId } from 'mongodb'
 import cors from 'cors'
 import path from 'path';
-import fs from 'fs';
+import fs, { copyFileSync } from 'fs';
 
 const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri);
 const db = client.db('test_database');
-const MEDIA_DIR = "D:\\Work\\Play Projects\\New folder\\Media"
+const MEDIA_DIR = "D:\\Work\\Play Projects\\Hotstar\\Media"
 const timestamp = new Date().toISOString();
 
 const logs = []
@@ -65,58 +65,49 @@ app.get('/logs', function (req, res) {
 })
 
 
-app.get('/getCollections', function (req, res) {
-    //    // get - getCollections(all/movie/series/Favourites, R or Non-R) (list having all contents with full details)
-    //    try {
-    //        auto typeParam = req.url_params.get("type");
-    //        auto ratingParam = req.url_params.get("rating");
+app.get('/getCollections/:category', async function (req, res) {
+    try {
+        if (req.params.category == "All") {
+            let { rating } = req.query;
+            rating = (rating == 18203) ? true : false;
+            const result = await (db.collection("All").find({}, { "_id": 1, "Category": 1 })).toArray();
+            const filteredResult = (await Promise.all(result.map(async (entry) => {
+                const update = await fetch(entry.Category, { _id: new ObjectId(entry._id) }, {});
+                update.Favourite = entry.Favourite;
+                if (update.R === rating) return update;
+            }))).filter((update) => update != null);
+            logs.push(timestamp + ' \\ Sucessfully Get Collection All');
+            res.status(200).send(filteredResult);
+        }
+        else if (req.params.category == "Movies" || req.params.category == "Series" || req.params.category == "Favourites") {
+            let { rating } = req.query;
+            rating = (rating == 18203) ? true : false;
+            const result = await (db.collection(req.params.category).find({}, {})).toArray();
 
-    //        if (!typeParam || !ratingParam) {
-    //            throw invalid_argument("Missing Query Parameters");
-    //        }
-
-    //        Content type;
-    //        if (string(typeParam) == "all") {
-    //            type = ALL;
-    //        }
-    //        else if (string(typeParam) == "movie") {
-    //            type = MOVIES;
-    //        }
-    //        else if (string(typeParam) == "series") {
-    //            type = SERIES;
-    //        }
-    //        else if (string(typeParam) == "favourites") {
-    //            type = FAVOURITES;
-    //        }
-    //        else {
-    //            throw invalid_argument("Invalid Type Value");
-    //        }
-
-    //        int ratingValue = stoi(ratingParam);
-    //        Rating rating;
-    //        if (ratingValue == 13456) {
-    //            rating = R;
-    //        }
-    //        else if (ratingValue == 29348) {
-    //            rating = A;
-    //        }
-    //        else {
-    //            throw invalid_argument("Invalid Rating Value");
-    //        }
-
-    //        // Send a success response (placeholder logic)
-    //        res.code = 200;
-    //        res.body = "Collections retrieved successfully!";
-    //        res.end();
-    //    }
-    //    catch (const exception& e) {
-    //        res.code = 500;
-    //        res.body = string("Error: ") + e.what();
-    //        res.end();
-    //    }
-    //    // Example: type=all/movie/series/Favourites, rating=R or Non-R
-    //    // Route: getCollections
+            const filteredResult = await Promise.all(
+                result
+                    .filter((entry) => entry.R === rating) 
+                    .map(async (entry) => {
+                        const update = await fetch("All", { _id: new ObjectId(entry._id) }, { "_id": 1, "Favourite": 1 });
+                        entry.Favourite = update.Favourite;
+                        return entry; 
+                    })
+            );
+            logs.push(timestamp + ` \\ Sucessfully Get Collection ${req.params.category}`);
+            res.status(200).send(filteredResult);
+        }
+        else {
+            throw new Error("Category Not Defined");
+        }
+    } catch (error) {
+        logs.push(timestamp + ' \\ Error Getting Collection\\ ' + error);
+        res.sendStatus(404);
+    }
 });
+
+app.get('/getDetails/:contentId', function (req, res) {
+    // Not Done
+})
 
 /* 
 Completed
@@ -125,11 +116,9 @@ localhost:4373/setFavourite?contentId=67eeeac7ca5dc42e95d2f24e
 app.get('/setFavourite', async function (req, res) {
     try {
         const { contentId } = req.query;
-        const category = await fetch("All", { _id: new ObjectId(contentId) }, { "_id": 0, "Category": 1 });
-        await update((category.Category ? "Series" : "Movies"), contentId, {
-            $bit: {
-                Favourite: { xor: 1 }
-            }
+        const category = await fetch("All", { _id: new ObjectId(contentId) }, { "_id": 0, "Favourite": 1 });
+        await update("All", contentId, {
+            $set: { "Favourite": !category.Favourite }
         }, {});
         logs.push(timestamp + ' \\ Sucessfully Set Favourite\\ ' + contentId);
         res.sendStatus(200);
@@ -139,8 +128,12 @@ app.get('/setFavourite', async function (req, res) {
     }
 })
 
+/* 
+Completed
+localhost:4373/getBackground/67eeeac7ca5dc42e95d2f24e
+*/
 app.get('/getBackground/:contentId', function (req, res) {
-    const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.contentId + '_background.jpeg');
+    const filePath = path.join(MEDIA_DIR, req.params.contentId, 'background.png');
     if (!fs.existsSync(filePath)) res.status(404).send('File Not Found');
     res.sendFile(filePath, function (error) {
         if (error) {
@@ -150,8 +143,12 @@ app.get('/getBackground/:contentId', function (req, res) {
     });
 })
 
+/* 
+Completed
+localhost:4373/getCard/67eeeac7ca5dc42e95d2f24e
+*/
 app.get('/getCard/:contentId', function (req, res) {
-    const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.contentId + '_card.jpeg');
+    const filePath = path.join(MEDIA_DIR, req.params.contentId, 'card.png');
     if (!fs.existsSync(filePath)) res.status(404).send('File Not Found');
     res.sendFile(filePath, function (error) {
         if (error) {
@@ -161,8 +158,12 @@ app.get('/getCard/:contentId', function (req, res) {
     });
 })
 
+/* 
+Completed
+localhost:4373/getPreview/67eeeac7ca5dc42e95d2f24e
+*/
 app.get('/getPreview/:contentId', function (req, res) {
-    const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.contentId + '_preview.jpeg');
+    const filePath = path.join(MEDIA_DIR, req.params.contentId, 'preview.png');
     if (!fs.existsSync(filePath)) res.status(404).send('File Not Found');
     res.sendFile(filePath, function (error) {
         if (error) {
@@ -172,8 +173,12 @@ app.get('/getPreview/:contentId', function (req, res) {
     });
 })
 
+/* 
+Completed
+localhost:4373/getIcon/67eeeac7ca5dc42e95d2f24e
+*/
 app.get('/getIcon/:contentId', function (req, res) {
-    const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.contentId + '_icon.jpeg');
+    const filePath = path.join(MEDIA_DIR, req.params.contentId, 'icon.png');
     if (!fs.existsSync(filePath)) res.status(404).send('File Not Found');
     res.sendFile(filePath, function (error) {
         if (error) {
@@ -183,14 +188,22 @@ app.get('/getIcon/:contentId', function (req, res) {
     });
 })
 
+/* 
+Completed
+localhost:4373/play/67eeeac7ca5dc42e95d2f24e
+*/
 app.get('/play/:contentId', async function (req, res) {
-    const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.contentId + '.m3u8');
+    const filePath = path.join(MEDIA_DIR, req.params.contentId, 'master.m3u8');
     if (!fs.existsSync(filePath)) res.status(404).send('File Not Found');
     res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
     fs.createReadStream(filePath).pipe(res);
 })
 
-app.get('/chunks/:contentId/:segment', (req, res) => {
+/* 
+Completed
+localhost:4373/chunk/67eeeac7ca5dc42e95d2f24e/segment_001.ts
+*/
+app.get('/chunk/:contentId/:segment', (req, res) => {
     const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.segment);
     if (!fs.existsSync(filePath)) res.status(404).send('Segment Not Found');
     res.setHeader('Content-Type', 'video/mp2t');
