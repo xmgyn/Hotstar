@@ -8,7 +8,7 @@ function Play({ id }) {
 
     useEffect(() => {
         const video = videoRef.current;
-        const videoSrc = `http://localhost:4373/play/${id}`;
+        const videoSrc = `http://192.168.0.110:4373/play/${id}`;
 
         if (Hls.isSupported()) {
             const hls = new Hls();
@@ -39,6 +39,7 @@ function Play({ id }) {
                     id="subtitle"
                     kind="subtitles"
                     srclang="en"
+                    src={`http://192.168.0.110:4373/chunk/${id}/subtitles_en.vtt`}
                     label="English"
                     default
                 />

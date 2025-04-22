@@ -4,10 +4,10 @@ import cors from 'cors'
 import path from 'path';
 import fs, { copyFileSync } from 'fs';
 
-const uri = 'mongodb://localhost:27017';
+const uri = 'mongodb://localhost:27020';
 const client = new MongoClient(uri);
-const db = client.db('test_database');
-const MEDIA_DIR = "D:\\Work\\Play Projects\\Hotstar\\Media"
+const db = client.db('movie_database');
+const MEDIA_DIR = "/usr/local/bin/Hotstar/Media"
 const timestamp = new Date().toISOString();
 
 const logs = []
@@ -190,6 +190,21 @@ app.get('/getIcon/:contentId', function (req, res) {
 
 /* 
 Completed
+localhost:4373/getSubtitle/67eeeac7ca5dc42e95d2f24e
+*/
+app.get('/getSubtitle/:contentId', async function (req, res) {
+    try {
+        const filePath = path.join(MEDIA_DIR, req.params.contentId, 'subtitles_en.vtt');
+        if (!fs.existsSync(filePath)) res.status(404).send('File Not Found');
+        res.sendFile(filePath);
+    } catch (error) {
+        logs.push(timestamp + ' \\ Error Getting Subtitle\\ ' + error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+/* 
+Completed
 localhost:4373/play/67eeeac7ca5dc42e95d2f24e
 */
 app.get('/play/:contentId', async function (req, res) {
@@ -210,8 +225,19 @@ app.get('/chunk/:contentId/:segment', (req, res) => {
     fs.createReadStream(filePath).pipe(res);
 });
 
-app.get('/streamImage/:contentId/:segment', function (req, res) {
-    //     16 * 16 Image
+/* 
+Completed
+localhost:4373/streamImage/67eeeac7ca5dc42e95d2f24e/3
+*/
+app.get('/streamImage/:contentId/:minute', function (req, res) {
+    try {
+        const filePath = path.join(MEDIA_DIR, req.params.contentId, 'Previews', 'thumb_minute_' + minute + '_grid.jpg');
+        if (!fs.existsSync(filePath)) res.status(404).send('Image Not Found');
+        res.sendFile(filePath);
+    } catch (error) {
+        logs.push(timestamp + ' \\ Error Getting Stream Image\\ ' + error);
+        res.status(500).send('Internal Server Error');
+    }
 })
 
 app.listen(4373);
