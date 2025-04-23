@@ -11,6 +11,16 @@ div.Play {
     }
 }
 
+div.Controller-Head {
+    height: 50%;
+    width: 100%;
+}
+
+div.Seek-Bar {
+    height: 50%;
+    width: 100%;
+}
+
 div#Controller {
     background: #3e3e3fc7;
     width: 60%;
@@ -38,3 +48,8 @@ div.Controller-Subtitle-Button {
         height: 100%;
     }
 }
+
+::cue {
+    
+  }
+  
