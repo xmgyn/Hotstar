@@ -212,13 +212,15 @@ div.Hero-Play-Button {
   backdrop-filter: blur(4px) brightness(1.2);
   height: 6vh;
   border-radius: 14px;
-  width: 20vw;
-  display: flex;
+  width: 16vw;
+  display: grid;
+  grid-template-columns: 30% 70%;
+  grid-gap: 4%;
   align-items: center;
-  justify-content: space-around;
 
   svg {
     height: 54%;
+    justify-self: self-end;
   }
 
   div {

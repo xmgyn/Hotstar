@@ -1,6 +1,7 @@
 import List from '../components/List'
 import Navbar from '../components/Navbar'
 import Like from '../assets/Like'
+import Play from '../assets/Play'
 
 import './Home.css'
 
@@ -9,7 +10,7 @@ function Home() {
   return (
     <>
       <div className="Hero-Image-Container">
-        <img src="/raya.jpg" style={{ minHeight: '100%', width: '100%' }} />
+        <img src="/raya.jpg" style={{ minHeight: '100%', width: '100%', objectFit: 'cover' }} />
       </div>
       <div className="Hero-Image-Overlay"></div>
       <Navbar />

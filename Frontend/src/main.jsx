@@ -6,6 +6,6 @@ import Play from './routes/Play'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Play id='68031c71b32282a3a6e2993e'/>
+    <Play id='67eeeac7ca5dc42e95d2f24e'/>
   </StrictMode>,
 )
