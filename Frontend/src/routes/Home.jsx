@@ -2,15 +2,17 @@ import List from '../components/List'
 import Navbar from '../components/Navbar'
 import Like from '../assets/Like'
 import Play from '../assets/Play'
+import React, { useEffect, useRef, useContext } from "react";
+import { DataContext } from "./../utility"; 
 
 import './Home.css'
 
 function Home() {
-
+  const cardData = useContext(DataContext); 
   return (
     <>
       <div className="Hero-Image-Container">
-        <img src="/raya.jpg" style={{ minHeight: '100%', width: '100%', objectFit: 'cover' }} />
+        { cardData && <img src="/raya.jpg" style={{ minHeight: '100%', width: '100%', objectFit: 'cover' }} /> }
       </div>
       <div className="Hero-Image-Overlay"></div>
       <Navbar />
