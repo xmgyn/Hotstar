@@ -1,8 +1,8 @@
 
 
-function Card({ className, CardNavigate, image }) {
+function Card({ id, className, CardNavigate, image }) {
     return (
-        <div className={"Card " + className} onClick={(event) => CardNavigate(event)}>
+        <div id={id} className={"Card " + className} onClick={(event) => CardNavigate(event)}>
             <img src={image} />
         </div>
     )

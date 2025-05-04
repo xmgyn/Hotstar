@@ -8,11 +8,11 @@ import { DataContext } from "./../utility";
 import './Home.css'
 
 function Home() {
-  const cardData = useContext(DataContext); 
+  const { data:cardData, context: currentContext, setPlay } = useContext(DataContext); 
   return (
     <>
       <div className="Hero-Image-Container">
-        { cardData && <img src="/raya.jpg" style={{ minHeight: '100%', width: '100%', objectFit: 'cover' }} /> }
+        { cardData && currentContext && <img src={`http://192.168.0.110:4373/getBackground/${currentContext.id}`} style={{ minHeight: '100%', width: '100%', objectFit: 'cover' }} /> }
       </div>
       <div className="Hero-Image-Overlay"></div>
       <Navbar />
@@ -23,12 +23,12 @@ function Home() {
           <div className="Tag oxygen-regular">Adventure</div>
         </div>
         <div className="Hero-Image-Heading">
-          <div className="Title-Image"><img src="pngaaa.com-2369863.png" /></div>
+          <div className="Title-Image">{ currentContext && <img src={`http://192.168.0.110:4373/getIcon/${currentContext.id}`} /> }</div>
         </div>
         <div className="Interact">
           <div className="Hero-Play-Button">
             <Play />
-            <div className="oxygen-regular">Start Watching</div>
+            <div className="oxygen-regular" onClick={() => setPlay(true)}>Start Watching</div>
           </div>
           <div className="Hero-Favourite"><Like /></div>
         </div>

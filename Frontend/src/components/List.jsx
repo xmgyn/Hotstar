@@ -7,7 +7,7 @@ import { DataContext } from "./../utility";
 
 
 function List({ className }) {
-    const cardData = useContext(DataContext);
+    const { data:cardData, setContext: changeContext } = useContext(DataContext);
     const previousCardRef = useRef(null);
 
     function CardNavigate(event) {
@@ -22,6 +22,7 @@ function List({ className }) {
         event.currentTarget.classList.add("Preview-Card");
 
         previousCardRef.current = event.currentTarget;
+        changeContext(event.currentTarget);
     }
     useEffect(() => {
         const firstChild = document.querySelector(".Horizontal-Card").firstElementChild;
