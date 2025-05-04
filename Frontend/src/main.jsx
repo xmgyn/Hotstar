@@ -10,7 +10,9 @@ function Main() {
   const { play, context } = useContext(DataContext); 
   return (
     <React.Fragment>
-      {play ? <Play id={context.id}/> : <Home />}
+      {/* {play ? <Play id={context.id}/> : <Home />} */}
+
+      <Play id='68031c71b32282a3a6e2993e'/>
     </React.Fragment>
   )
 }

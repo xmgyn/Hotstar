@@ -11,45 +11,117 @@ div.Play {
     }
 }
 
-div.Controller-Head {
-    height: 50%;
-    width: 100%;
-}
-
-div.Seek-Bar {
-    height: 50%;
-    width: 100%;
-}
-
 div#Controller {
-    background: #3e3e3fc7;
-    width: 60%;
-    height: 20%;
     position: absolute;
-    border-radius: 10px;
-    bottom: 6vh;
-    border: 1px solid #ffffff;
+    bottom: 0;
+    background: transparent;
+    height: 30%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, transparent, black);
 }
 
-div.Controller-Subtitle-Button {
-    background: black;
-    color: #2e3192;
-    width: 20%;
-    height: 90%;
-    border-radius: 10px;
-    border: 1px solid;
-    margin: 10px;
+div.Controller-Top {
+    height: 30%;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
 
-    svg {
-        fill: white;
-        height: 100%;
+    div.Video-Current-Time {
+        color: #ffffff;
+        font-size: 20px;
+        width: 5%;
+        text-align: center;
+    }
+
+    div.Video-Seek-Bar {
+        width: 90%;
+        background: #FFFFFF;
+        height: 10%;
+        border-radius: 20px;
+
+        div.Video-Seek-Current {
+            width: 40%;
+            background: #ff0068;
+            border-radius: 20px;
+            height: 100%;
+        }
+
+        div.Video-Seek-Current::after {
+            height: 100%;
+            border-radius: 50%;
+            color: #ff0068;
+        }
+    }
+
+    div.Video-Total-Time {
+        color: #ffffff;
+        font-size: 20px;
+        text-align: center;
+        width: 5%;
     }
 }
 
-::cue {
-    
-  }
-  
+div.Controller-Bottom {
+    height: 70%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+
+    div.Settings {
+        height: 30%;
+        width: 10%;
+        display: flex;
+        justify-content: space-evenly;
+        background-color: #a5a5a578;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+
+        div {
+            height: 100%;
+
+            img {
+                height: 100%;
+            }
+        }
+    }
+
+    div.Controls {
+        height: 50%;
+        width: 50%;
+        display: flex;
+        justify-content: space-between;
+
+        div {
+            height: 100%;
+
+            img {
+                height: 100%;
+            }
+        }
+
+        div.Controls-Seek-Pause {
+            display: none;
+        }
+    }
+
+    div.Extra {
+        height: 30%;
+        width: 10%;
+        display: flex;
+        justify-content: space-evenly;
+        background-color: #a5a5a578;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+
+        div {
+            height: 100%;
+
+            img {
+                height: 100%;
+            }
+        }
+    }
+}
