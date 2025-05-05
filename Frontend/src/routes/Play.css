@@ -11,6 +11,16 @@ div.Play {
     }
 }
 
+@keyframes spin {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
 div#Controller {
     position: absolute;
     bottom: 0;
@@ -19,7 +29,7 @@ div#Controller {
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(to bottom, transparent, black);
+    background: linear-gradient(to bottom, transparent, #40072c63, #200314, #090105);
 }
 
 div.Controller-Top {
@@ -31,27 +41,28 @@ div.Controller-Top {
     div.Video-Current-Time {
         color: #ffffff;
         font-size: 20px;
-        width: 5%;
+        width: 7%;
         text-align: center;
     }
 
     div.Video-Seek-Bar {
-        width: 90%;
+        width: 85%;
         background: #FFFFFF;
         height: 10%;
         border-radius: 20px;
 
-        div.Video-Seek-Current {
+        div.Video-Seek-Line {
             width: 40%;
             background: #ff0068;
             border-radius: 20px;
             height: 100%;
         }
 
-        div.Video-Seek-Current::after {
-            height: 100%;
+        div.Video-Seek-Current {
+            height: 10px;
+            width: 10px;
             border-radius: 50%;
-            color: #ff0068;
+            color: #ffffff;
         }
     }
 
@@ -59,7 +70,7 @@ div.Controller-Top {
         color: #ffffff;
         font-size: 20px;
         text-align: center;
-        width: 5%;
+        width: 7%;
     }
 }
 
@@ -75,15 +86,19 @@ div.Controller-Bottom {
         width: 10%;
         display: flex;
         justify-content: space-evenly;
-        background-color: #a5a5a578;
-        border: 2px solid #ffffff;
+        background-color: #48484878;
+        border: 2px solid #ff0068;
         border-radius: 10px;
+        padding: 0.5%;
 
         div {
             height: 100%;
+            width: 45%;
+            margin: 0% 7%;
 
             img {
                 height: 100%;
+                width: 100%;
             }
         }
     }
@@ -93,18 +108,29 @@ div.Controller-Bottom {
         width: 50%;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+
+        div.Controls-Previous,
+        div.Controls-Next {
+            height: 60%;
+            width: 6%;
+        }
 
         div {
             height: 100%;
+            width: 11%;
 
             img {
                 height: 100%;
+                width: 100%;
             }
         }
 
-        div.Controls-Seek-Pause {
-            display: none;
+        div.Controls-Seek-Loading {
+            animation: spin 2s linear infinite;
         }
+
+
     }
 
     div.Extra {
@@ -112,15 +138,20 @@ div.Controller-Bottom {
         width: 10%;
         display: flex;
         justify-content: space-evenly;
-        background-color: #a5a5a578;
-        border: 2px solid #ffffff;
+        background-color: #48484878;
+        border: 2px solid #ff0068;
+        ;
         border-radius: 10px;
+        padding: 0.5%;
 
         div {
             height: 100%;
+            width: 45%;
+            margin: 0% 7%;
 
             img {
                 height: 100%;
+                width: 100%;
             }
         }
     }
