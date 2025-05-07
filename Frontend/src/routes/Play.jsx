@@ -1,14 +1,19 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Controller from '../components/Controller';
+
+import Controller from '../components/Player/Controller';
+import Details from '../components/Player/Details';
+import AudioSelect from '../components/Player/AudioSelect';
 
 import './Play.css';
 
 function Play({ id }) {
-    const [Play, setPlay] = useState(false); 
-    const [Loading, setLoading] = useState(true); 
+    const [Play, setPlay] = useState(false);
+    const [Loading, setLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState(0);
+    const [showDetails, setShowDetails] = useState(false);
+    const [showAudioSelect, setShowAudioSelect] = useState(false);
 
-    const videoRef = useRef(null); 
+    const videoRef = useRef(null);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -26,13 +31,13 @@ function Play({ id }) {
                 setLoading(false);
             });
             video.addEventListener('canplay', () => {
-                setLoading(false); 
+                setLoading(false);
             });
-            
+
             video.addEventListener('canplaythrough', () => {
-                setLoading(false); 
+                setLoading(false);
             });
-            
+
         }
 
         video.addEventListener("playing", () => { setLoading(false) });
@@ -56,18 +61,25 @@ function Play({ id }) {
     }, [id]);
 
     return (
-        <div className='Play'>
-            <video ref={videoRef} id="video" crossOrigin="anonymous">
-                <track
-                    id="subtitle"
-                    kind="subtitles"
-                    srclang="en"
-                    src={`http://192.168.0.110:4373/chunk/${id}/subtitles_en.vtt`}
-                    label="English"
-                    default
-                />
-            </video>
-            <Controller Props={{ Loading, Play, setPlay, videoRef, currentTime }} />
+        <div className='Player'>
+            <div className="Play">
+                <video ref={videoRef} id="video" crossOrigin="anonymous">
+                    <track
+                        id="subtitle"
+                        kind="subtitles"
+                        srclang="en"
+                        src={`http://192.168.0.110:4373/chunk/${id}/subtitles_en.vtt`}
+                        label="English"
+                        default
+                    />
+                </video>
+                <Controller Props={{ Loading, Play, setPlay, videoRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
+            </div>
+            {(showDetails || showAudioSelect) && 
+            <div className="Overlay">
+                {showDetails && <Details />}
+                {showAudioSelect && <AudioSelect />}
+            </div>}
         </div>
     );
 }

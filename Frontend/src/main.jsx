@@ -12,7 +12,7 @@ function Main() {
     <React.Fragment>
       {/* {play ? <Play id={context.id}/> : <Home />} */}
 
-      <Play id='68031c71b32282a3a6e2993e'/>
+      <Play key='68031c71b32282a3a6e2993e' id='68031c71b32282a3a6e2993e'/>
     </React.Fragment>
   )
 }
