@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { preconnect } from "react-dom";
 
 function Controller({ Props }) {
-  const [seekPosition, setSeekPosition] = useState(0);
-
-
+  let controller;
   let video = Props.videoRef.current;
+
+  const [imagePreview, setImagePreview] = useState(false);
 
   const setPlayState = () => {
     if (!video) video = Props.videoRef.current;
@@ -26,6 +27,31 @@ function Controller({ Props }) {
     }
   }
 
+  const showImagePreview = (duration) => {
+    // Cancel the previous request if it exists
+    if (controller) {
+      controller.abort();
+    }
+
+    // Create a new AbortController for the current request
+    controller = new AbortController();
+    const { signal } = controller;
+
+    const minute = Math.floor(duration / 60);
+    console.log(minute)
+    fetch(`http://192.168.0.110:4373/streamImage/67eeeac7ca5dc42e95d2f24e/${minute}`, { signal })
+      .then(response => response.blob())
+      .then(blob => {
+        const imgURL = URL.createObjectURL(blob);
+        document.getElementById("Image-Preview").src = imgURL;
+      })
+      .catch(error => {
+        if (error.name !== "AbortError") {
+          console.error("Error Fetching Image:", error);
+        }
+      });
+  };
+
   const TimeFormat = (time) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
@@ -37,31 +63,34 @@ function Controller({ Props }) {
   useEffect(() => {
     const seekbarCircle = document.getElementById("Video-Seek-Current");
     const seekbar = document.querySelector(".Video-Seek-Bar");
-    const video = videoRef.current;
-    
+    const video = Props.videoRef.current;
+
     const updateSeekbar = () => {
       if (video) {
         const percentage = (video.currentTime / video.duration) * 100;
-        setSeekPosition(percentage);
+        document.documentElement.style.setProperty("--seek-width", Math.floor(percentage) + '%');
       }
     };
 
     video.addEventListener("timeupdate", updateSeekbar);
 
-    return () => {
-      video.removeEventListener("timeupdate", updateSeekbar);
-    };
-
     // Drag The Slider
     seekbarCircle.addEventListener("mousedown", (event) => {
       const updateProgress = (e) => {
+        setImagePreview(true);
         const rect = seekbar.getBoundingClientRect();
         let percentage = ((e.clientX - rect.left) / rect.width) * 100;
-        percentage = Math.max(0, Math.min(100, Math.round(percentage))) + "%";
-        document.documentElement.style.setProperty("--seek-width", percentage);
+        let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage)));
+        document.documentElement.style.setProperty("--seek-width", percentageFloor + '%');
+        document.documentElement.style.setProperty("--seek-preview-width", percentageFloor + '%');
+        const time = (percentage * video.duration) / 100;
+        video.currentTime = time;
+        showImagePreview(time);
       };
       document.addEventListener("mousemove", updateProgress);
       document.addEventListener("mouseup", () => {
+        setImagePreview(false);
+        document.documentElement.style.setProperty("--seek-preview-width", '0%');
         document.removeEventListener("mousemove", updateProgress);
         document.removeEventListener("mouseup", arguments.callee);
       }, { once: true });
@@ -71,21 +100,25 @@ function Controller({ Props }) {
     seekbar.addEventListener("click", (event) => {
       const rect = seekbar.getBoundingClientRect();
       let percentage = ((event.clientX - rect.left) / rect.width) * 100;
-      percentage = Math.max(0, Math.min(100, Math.round(percentage))) + "%";
-      document.documentElement.style.setProperty("--seek-width", percentage);
+      percentage = Math.max(0, Math.min(100, Math.round(percentage)));
+      document.documentElement.style.setProperty("--seek-width", percentage + "%");
+      video.currentTime = (percentage * video.duration) / 100;
       document.documentElement.style.setProperty("--seek-preview-width", '0%');
     })
-    
+
     // Show Preview Line
     seekbar.addEventListener("mouseenter", (event) => {
       const updateProgressPreview = (e) => {
+        setImagePreview(true);
         const rect = seekbar.getBoundingClientRect();
         let percentage = ((e.clientX - rect.left) / rect.width) * 100;
-        percentage = Math.max(0, Math.min(100, Math.round(percentage))) + "%";
-        document.documentElement.style.setProperty("--seek-preview-width", percentage);
+        let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage))) + "%";
+        document.documentElement.style.setProperty("--seek-preview-width", percentageFloor);
+        showImagePreview((percentage * video.duration) / 100);
       };
       seekbar.addEventListener("mousemove", updateProgressPreview);
       seekbar.addEventListener("mouseleave", () => {
+        setImagePreview(false);
         document.documentElement.style.setProperty("--seek-preview-width", '0%');
         seekbar.removeEventListener("mousemove", updateProgressPreview);
       }, { once: true });
@@ -104,6 +137,10 @@ function Controller({ Props }) {
           break;
       }
     })
+
+    return () => {
+      video.removeEventListener("timeupdate", updateSeekbar);
+    };
   }, [])
 
   return (
@@ -111,6 +148,9 @@ function Controller({ Props }) {
       <div id="Controller-Top" className="Controller-Top">
         {video && <div className="Video-Current-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(Props.currentTime)}</div>}
         <div id="Video-Seek-Bar" className="Video-Seek-Bar">
+          {imagePreview && <div className="Image-Preview">
+            <img id="Image-Preview" />
+          </div>}
           <div id="Video-Seek-Preview-Line" className="Video-Seek-Preview-Line"></div>
           <div id="Video-Seek-Line" className="Video-Seek-Line"></div>
           <div id="Video-Seek-Current" className="Video-Seek-Current">

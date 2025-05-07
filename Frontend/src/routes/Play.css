@@ -76,6 +76,7 @@ div.Video-Seek-Bar {
 div.Video-Seek-Bar:hover {
     height: 15%;
     cursor: pointer;
+
     div.Video-Seek-Current {
         height: 30px;
         width: 30px;
@@ -201,4 +202,18 @@ div.Details-Window {
     border: 2px solid #ff0068;
     border-radius: 20px;
     align-self: anchor-center;
+}
+
+div.Image-Preview {
+    position: absolute;
+    background: #ffffff;
+    height: 240px;
+    width: 320px;
+    left: var(--seek-preview-width);
+    transform: translate(0px, -270px);
+
+    img {
+        height: 100%;
+        width: 100%;
+    }
 }
