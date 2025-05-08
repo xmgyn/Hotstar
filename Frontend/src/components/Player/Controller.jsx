@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { preconnect } from "react-dom";
+import { useEffect, useState, useContext } from "react";
+import { DataContext } from "../../utility";
 
 function Controller({ Props }) {
+  const { setPlay } = useContext(DataContext); 
+
   let controller;
   let video = Props.videoRef.current;
 
@@ -28,17 +30,12 @@ function Controller({ Props }) {
   }
 
   const showImagePreview = (duration) => {
-    // Cancel the previous request if it exists
     if (controller) {
       controller.abort();
     }
-
-    // Create a new AbortController for the current request
     controller = new AbortController();
     const { signal } = controller;
-
     const minute = Math.floor(duration / 60);
-    console.log(minute)
     fetch(`http://192.168.0.110:4373/streamImage/67eeeac7ca5dc42e95d2f24e/${minute}`, { signal })
       .then(response => response.blob())
       .then(blob => {
@@ -173,7 +170,7 @@ function Controller({ Props }) {
         </div>
         <div className="Extra">
           <div className="Extra-Info-Button" onClick={() => Props.setShowDetails(!Props.showDetails)}><img src="/about.png" /></div>
-          <div className="Extra-Close"><img src="/cross.png" /></div>
+          <div className="Extra-Close"  onClick={() => setPlay(false)}><img src="/cross.png" /></div>
         </div>
       </div>
     </div>

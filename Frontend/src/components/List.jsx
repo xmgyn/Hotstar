@@ -1,35 +1,28 @@
 import Card from './Card'
 import Left from '../assets/Left'
 
-import React, { useEffect, useRef, useContext } from "react";
-import { DataContext } from "./../utility"; 
+import React, { useEffect, useState, useRef, useContext } from "react";
+import { DataContext } from "./../utility";
 
 
 
 function List({ className }) {
-    const { data:cardData, setContext: changeContext } = useContext(DataContext);
-    const previousCardRef = useRef(null);
+    const { data: cardData, setContext: changeContext } = useContext(DataContext);
+    const [selectedCard, setSelectedCard] = useState(null);
 
-    function CardNavigate(event) {
-        if (previousCardRef.current) {
-            const imgElement = previousCardRef.current.querySelector("img");
-            imgElement.src = imgElement.src.replace("Preview", "Card");
-            previousCardRef.current.classList.remove("Preview-Card");
-        }
-
-        const imgElement = event.currentTarget.querySelector("img");
-        imgElement.src = imgElement.src.replace("Card", "Preview");
-        event.currentTarget.classList.add("Preview-Card");
-
-        previousCardRef.current = event.currentTarget;
-        changeContext(event.currentTarget);
+    function handleCardClick(card) {
+        setSelectedCard(card._id); 
+        console.log(card)
+        changeContext(card); 
     }
+
     useEffect(() => {
-        const firstChild = document.querySelector(".Horizontal-Card").firstElementChild;
-        if (firstChild) {
-            CardNavigate({ currentTarget: firstChild }); 
+        if (cardData && cardData.length > 0) {
+            setSelectedCard(cardData[0]._id); 
+            changeContext(cardData[0]);
         }
     }, [cardData]);
+
     return (
         <div className={className}>
             <div className="Card-Heading">
@@ -40,9 +33,20 @@ function List({ className }) {
                 </div>
             </div>
             <div className="Horizontal-Card">
-                {cardData && cardData.map((item) => ( <Card id={item._id} key={item._id} CardNavigate={CardNavigate} image={`http://192.168.0.110:4373/getCard/${item._id}`} /> ), function () { CardNavigate(document.querySelector(".Horizontal-Card").firstElementChild); })}
-                {/* <Card className="Preview-Card" image="/stretch.jpg"/>
-                <Card className="End-Card" image="/frozen.jpeg"/> */}
+                {
+                    cardData && cardData.map(
+                        (item, index) => {
+                            const extraProps = {
+                                className: `${selectedCard === item._id ? "Preview-Card" : ""} ${index === cardData.length - 1 ? "End-Card" : ""}`.trim(),
+                                onClick: () => handleCardClick(item),
+                                image: `http://192.168.0.110:4373/${(selectedCard === item._id) ? 'getPreview' : 'getCard' }/${item._id}`
+                            };
+    
+                            return (
+                                item && <Card key={item._id} id={item._id} {...extraProps} />
+                            );
+                        })
+                }
             </div>
         </div>
     )

@@ -10,9 +10,10 @@ export const DataProvider = ({ children }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://192.168.0.110:4373/getCollections/Movies"); 
+                const response = await fetch("http://192.168.0.110:4373/getCollections/Movies?rating=18203"); 
                 const result = await response.json();
-                setData(result);
+                const shuffledResult = result.sort(() => Math.random() - 0.5);
+                setData(shuffledResult);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }

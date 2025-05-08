@@ -7,17 +7,16 @@ import Home from './routes/Home'
 import Play from './routes/Play'
 
 function Main() {
-  const { play, context } = useContext(DataContext); 
+  const { play, context } = useContext(DataContext);
   return (
     <React.Fragment>
-      {/* {play ? <Play id={context.id}/> : <Home />} */}
-
-      <Play key='68031c71b32282a3a6e2993e' id='68031c71b32282a3a6e2993e'/>
+      <div style={{ display: play ? "none" : "block" }}>
+        <Home />
+      </div>
+      { play && <Play key={context._id} id={context._id} /> }
     </React.Fragment>
   )
 }
-
-
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
