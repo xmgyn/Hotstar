@@ -209,7 +209,8 @@ div.Details-Window {
     align-self: anchor-center;
 }
 
-div.Image-Preview {
+div.Image-Preview-Cont {
+    display: none;
     position: absolute;
     background: #ffffff;
     height: 240px;
