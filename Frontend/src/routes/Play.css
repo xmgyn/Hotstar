@@ -11,6 +11,11 @@ div.Player {
     justify-content: center;
 }
 
+div.Play {
+    width: 100%;
+    height: 100%;
+}
+
 div.Overlay {
     height: 100%;
     width: 100%;

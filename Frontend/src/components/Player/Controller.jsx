@@ -6,26 +6,33 @@ function Controller({ Props }) {
 
   let controller;
   let video = Props.videoRef.current;
+  let audio = Props.audioRef.current;
 
   const [imagePreview, setImagePreview] = useState(false);
 
   const setPlayState = () => {
     if (!video) video = Props.videoRef.current;
+    if (!audio) audio = Props.audioRef.current;
     if (Props.Play) {
       video.pause();
+      audio.pause();
     } else {
       video.play();
+      audio.play();
     }
     Props.setPlay(!Props.Play);
   }
 
   const setSeekState = (seekAhead) => {
     if (!video) video = Props.videoRef.current;
+    if (!audio) audio = Props.audioRef.current;
     if (seekAhead) {
       video.currentTime += 10;
+      audio.currentTime += 10;
     }
     else {
       video.currentTime -= 10;
+      audio.currentTime -= 10;
     }
   }
 
@@ -61,7 +68,7 @@ function Controller({ Props }) {
     const seekbarCircle = document.getElementById("Video-Seek-Current");
     const seekbar = document.querySelector(".Video-Seek-Bar");
     const video = Props.videoRef.current;
-
+    const audio = Props.audioRef.current;
     const updateSeekbar = () => {
       if (video) {
         const percentage = (video.currentTime / video.duration) * 100;
@@ -82,6 +89,7 @@ function Controller({ Props }) {
         document.documentElement.style.setProperty("--seek-preview-width", percentageFloor + '%');
         const time = (percentage * video.duration) / 100;
         video.currentTime = time;
+        audio.currentTime = time;
         showImagePreview(time);
       };
       document.addEventListener("mousemove", updateProgress);
@@ -99,7 +107,9 @@ function Controller({ Props }) {
       let percentage = ((event.clientX - rect.left) / rect.width) * 100;
       percentage = Math.max(0, Math.min(100, Math.round(percentage)));
       document.documentElement.style.setProperty("--seek-width", percentage + "%");
-      video.currentTime = (percentage * video.duration) / 100;
+      const time = (percentage * video.duration) / 100;
+      video.currentTime = time;
+      audio.currentTime = time;
       document.documentElement.style.setProperty("--seek-preview-width", '0%');
     })
 
