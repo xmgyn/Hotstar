@@ -38,20 +38,17 @@ function Play({ id }) {
             ]).then(() => {
                 setLoading(false);
             });
-            
+
             hlsVideo.on(Hls.Events.ERROR, (event, data) => {
-                console.error("hlsVideo.js Error:", data);
+                console.error("Video Error : ", data);
             });
             hlsAudio.on(Hls.Events.ERROR, (event, data) => {
-                console.error("hlsAudio.js Error:", data);
+                console.error("Audio Error : ", data);
             });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = videoSrc;
             audio.src = audioSrc;
             video.addEventListener('loadedmetadata', () => {
-                setLoading(false);
-            });
-            video.addEventListener('canplay', () => {
                 setLoading(false);
             });
             video.addEventListener('canplaythrough', () => {
@@ -60,18 +57,22 @@ function Play({ id }) {
         }
 
         video.addEventListener("playing", () => { setLoading(false) });
-        video.addEventListener("seeked", () => { setLoading(false) });
+        video.addEventListener("seeked", () => {
+            audio.currentTime = video.currentTime;
+            setLoading(false); 
+        });
         video.addEventListener("waiting", () => { setLoading(true) });
-        video.addEventListener("seeking", () => { setLoading(true) });
-        video.addEventListener("timeupdate", () => { 
-            setCurrentTime(video.currentTime) 
+        video.addEventListener("seeking", () => { 
+            setLoading(true);
+        });
+        video.addEventListener("timeupdate", () => {
+            setCurrentTime(video.currentTime);
             audio.currentTime = video.currentTime;
         });
 
         return () => {
             if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.removeEventListener('loadedmetadata', () => setLoading(false));
-                video.removeEventListener('canplay', () => setLoading(false));
                 video.removeEventListener('canplaythrough', () => setLoading(false));
                 video.removeEventListener('playing', () => setLoading(false));
                 video.removeEventListener('seeked', () => setLoading(false));

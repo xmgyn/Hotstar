@@ -212,14 +212,19 @@ div.Details-Window {
 div.Image-Preview-Cont {
     display: none;
     position: absolute;
-    background: #ffffff;
-    height: 240px;
-    width: 320px;
+    background: #000000;
+    border: 2px solid #ff0068;
+    border-radius: 20px;
+    height: 160px;
+    width: 240px;
     left: var(--seek-preview-width);
-    transform: translate(0px, -270px);
+    transform: translate(-50%, -180px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     img {
-        height: 100%;
-        width: 100%;
+        height: 90%;
+        width: 90%;
     }
 }

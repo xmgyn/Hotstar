@@ -153,7 +153,7 @@ function Controller({ Props }) {
         {video && <div className="Video-Current-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(Props.currentTime)}</div>}
         <div id="Video-Seek-Bar" className="Video-Seek-Bar">
           <div id="Image-Preview-Cont" className="Image-Preview-Cont">
-            <img id="Image-Preview" />
+            <img id="Image-Preview" src="" /> {/* Loading src */}
           </div>
           <div id="Video-Seek-Preview-Line" className="Video-Seek-Preview-Line"></div>
           <div id="Video-Seek-Line" className="Video-Seek-Line"></div>
