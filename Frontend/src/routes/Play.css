@@ -26,6 +26,7 @@ div.Overlay {
 video {
     height: 100%;
     width: 100%;
+    object-fit: cover;
 }
 
 @keyframes spin {
@@ -219,7 +220,6 @@ div.Image-Preview-Cont {
     width: 240px;
     left: var(--seek-preview-width);
     transform: translate(-50%, -180px);
-    display: flex;
     justify-content: center;
     align-items: center;
 

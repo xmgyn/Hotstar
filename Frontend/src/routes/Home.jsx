@@ -8,10 +8,6 @@ import { DataContext } from "./../utility";
 
 import './Home.css'
 
-/*
-set video segment size to 9 mb
-*/
-
 function Home() {
   const { data: cardData, context: currentContext, setPlay } = useContext(DataContext);
 
@@ -45,10 +41,22 @@ function Home() {
               <div className="Title-Image">{currentContext && <img src={`http://192.168.0.110:4373/getIcon/${currentContext._id}`} />}</div>
             </div>
             <div className="Interact">
-              <div className="Hero-Play-Button" onClick={() => setPlay(true)}>
-                <Play />
-                <div className="oxygen-regular">Start Watching</div>
-              </div>
+              {currentContext && (currentContext.Seasons ?
+                
+                  
+                  <select className="Hero-Play-Button" name="Season 1" id="cars">{/*<div className="Hero-Play-Button" >
+                  <Play /> </div> <div className="oxygen-regular">Start Season 1</div> onClick={() => setPlay(true)} */}
+                    <optgroup label="Season 1">
+                      <option value="volvo" default>Episode 1</option>
+                      <option value="saab">Episode 2</option>
+                    </optgroup>
+                  </select>
+                :
+                <div className="Hero-Play-Button" onClick={() => setPlay(true)}>
+                  <Play />
+                  <div className="oxygen-regular">Start Watching</div>
+                </div>)
+              }
               <div className="Hero-Favourite" onClick={setFavourite}><Like fill={currentContext && currentContext.Favourite ? "#fb0505" : "#00000000"} /></div>
             </div>
           </div>

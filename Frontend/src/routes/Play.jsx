@@ -21,7 +21,25 @@ function Play({ id }) {
         const audio = audioRef.current;
 
         const videoSrc = `http://192.168.0.110:4373/play/${id}/video`;
-        const audioSrc = `http://192.168.0.110:4373/play/${id}/audio_english`;
+        const audioSrc = `http://192.168.0.110:4373/play/${id}/audio_hindi`;
+
+        const Container = document.getElementById("Controller");
+        const Player = document.getElementById("Player");
+
+        let timeout;
+
+        document.addEventListener("mousemove", () => {
+            clearTimeout(timeout); // Reset timer
+            Container.style.display = "flex"; // Show controls
+            Player.style.cursor = "default";
+            // Hide controls after 2 seconds of inactivity
+            timeout = setTimeout(() => {
+                if (video.paused) return;
+                Container.style.display = "none"; // Hide controls
+                Player.style.cursor = "none";
+            }, 3000);
+        });
+
 
         if (Hls.isSupported()) {
             const hlsVideo = new Hls();
@@ -38,13 +56,6 @@ function Play({ id }) {
             ]).then(() => {
                 setLoading(false);
             });
-
-            hlsVideo.on(Hls.Events.ERROR, (event, data) => {
-                console.error("Video Error : ", data);
-            });
-            hlsAudio.on(Hls.Events.ERROR, (event, data) => {
-                console.error("Audio Error : ", data);
-            });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = videoSrc;
             audio.src = audioSrc;
@@ -59,15 +70,14 @@ function Play({ id }) {
         video.addEventListener("playing", () => { setLoading(false) });
         video.addEventListener("seeked", () => {
             audio.currentTime = video.currentTime;
-            setLoading(false); 
+            setLoading(false);
         });
         video.addEventListener("waiting", () => { setLoading(true) });
-        video.addEventListener("seeking", () => { 
+        video.addEventListener("seeking", () => {
             setLoading(true);
         });
         video.addEventListener("timeupdate", () => {
             setCurrentTime(video.currentTime);
-            audio.currentTime = video.currentTime;
         });
 
         return () => {
@@ -85,7 +95,7 @@ function Play({ id }) {
     }, [id]);
 
     return (
-        <div className='Player'>
+        <div id="Player" className='Player'>
             <div className="Play">
                 <video ref={videoRef} id="video" crossOrigin="anonymous">
                     {/* <track
@@ -99,7 +109,7 @@ function Play({ id }) {
                 </video>
                 <audio ref={audioRef} id="audio" crossOrigin="anonymous">
                 </audio>
-                <Controller Props={{ Loading, Play, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
+                <Controller Props={{ id, Loading, Play, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
             </div>
             {(showDetails || showAudioSelect) &&
                 <div className="Overlay">

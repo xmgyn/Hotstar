@@ -39,10 +39,11 @@ function Controller({ Props }) {
       controller.abort();
     }
     controller = new AbortController();
-    document.getElementById("Image-Preview-Cont").style.setProperty("display", 'block');
+    document.getElementById("Image-Preview-Cont").style.setProperty("display", 'flex');
     const { signal } = controller;
     const minute = Math.floor(duration / 60);
-    fetch(`http://192.168.0.110:4373/streamImage/67eeeac7ca5dc42e95d2f24e/${minute}`, { signal })
+    if (minute.isNaN) return;
+    fetch(`http://192.168.0.110:4373/streamImage/${Props.id}/${minute + 1}`, { signal })
       .then(response => response.blob())
       .then(blob => {
         const imgURL = URL.createObjectURL(blob);
@@ -88,7 +89,7 @@ function Controller({ Props }) {
         const time = (percentage * video.duration) / 100;
         video.currentTime = time;
         audio.currentTime = time;
-        showImagePreview(time);
+        //showImagePreview(time);
       };
       document.addEventListener("mousemove", updateProgress);
       document.addEventListener("mouseup", () => {
@@ -118,7 +119,7 @@ function Controller({ Props }) {
         let percentage = ((e.clientX - rect.left) / rect.width) * 100;
         let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage))) + "%";
         document.documentElement.style.setProperty("--seek-preview-width", percentageFloor);
-        showImagePreview((percentage * video.duration) / 100);
+        //showImagePreview((percentage * video.duration) / 100);
       };
       seekbar.addEventListener("mousemove", updateProgressPreview);
       seekbar.addEventListener("mouseleave", () => {

@@ -10,10 +10,11 @@ function Main() {
   const { play, context } = useContext(DataContext);
   return (
     <React.Fragment>
-      <div style={{ display: play ? "none" : "block" }}>
+      {/* <div style={{ display: play ? "none" : "block" }}>
         <Home />
       </div>
-      { play && <Play key={context._id} id={context._id} /> }
+      { play && <Play key={context._id} id={context._id} /> } */}
+      <Play id="681a3f8f9895e2705697eddc/681a44ed9895e2705697ede8/681a455e9895e2705697edeb"/>
     </React.Fragment>
   )
 }
