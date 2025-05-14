@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { DataContext } from "../../utility";
 
 function Controller({ Props }) {
-  const { setPlay } = useContext(DataContext); 
+  const { setPlay } = useContext(DataContext);
 
   let controller;
   let video = Props.videoRef.current;
@@ -39,15 +39,30 @@ function Controller({ Props }) {
       controller.abort();
     }
     controller = new AbortController();
+    document.getElementById("Image-Preview-Cont").innerHTML = '';
     document.getElementById("Image-Preview-Cont").style.setProperty("display", 'flex');
     const { signal } = controller;
     const minute = Math.floor(duration / 60);
+    const second = Math.floor(duration % 60);
     if (minute.isNaN) return;
-    fetch(`http://192.168.0.110:4373/streamImage/${Props.id}/${minute + 1}`, { signal })
+    const img = document.createElement("div");
+    img.id = "Image-Preview";
+    let value;
+    if (second >= 0 && second < 20) {
+      value = 1;
+    } else if (second >= 20 && second < 40) {
+      value = 2;
+    } else {
+      value = 3; // Covers 40-59 seconds
+    }
+    fetch(`http://192.168.0.110:4373/streamImage/${Props.id}/${minute <= 0 ? 0 : minute}/${value}`, { signal })
       .then(response => response.blob())
       .then(blob => {
         const imgURL = URL.createObjectURL(blob);
-        document.getElementById("Image-Preview").src = imgURL;
+        //img.src = imgURL;
+        //img.style.objectPosition = "-200px -100px";
+        img.style.background = `url(${imgURL}) 0 -15px`;
+        document.getElementById("Image-Preview-Cont").appendChild(img);
       })
       .catch(error => {
         if (error.name !== "AbortError") {
@@ -89,7 +104,7 @@ function Controller({ Props }) {
         const time = (percentage * video.duration) / 100;
         video.currentTime = time;
         audio.currentTime = time;
-        //showImagePreview(time);
+        showImagePreview(time);
       };
       document.addEventListener("mousemove", updateProgress);
       document.addEventListener("mouseup", () => {
@@ -119,7 +134,7 @@ function Controller({ Props }) {
         let percentage = ((e.clientX - rect.left) / rect.width) * 100;
         let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage))) + "%";
         document.documentElement.style.setProperty("--seek-preview-width", percentageFloor);
-        //showImagePreview((percentage * video.duration) / 100);
+        showImagePreview((percentage * video.duration) / 100);
       };
       seekbar.addEventListener("mousemove", updateProgressPreview);
       seekbar.addEventListener("mouseleave", () => {
@@ -154,7 +169,7 @@ function Controller({ Props }) {
         {video && <div className="Video-Current-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(Props.currentTime)}</div>}
         <div id="Video-Seek-Bar" className="Video-Seek-Bar">
           <div id="Image-Preview-Cont" className="Image-Preview-Cont">
-            <img id="Image-Preview" src="" /> {/* Loading src */}
+            {/* Loading src */}
           </div>
           <div id="Video-Seek-Preview-Line" className="Video-Seek-Preview-Line"></div>
           <div id="Video-Seek-Line" className="Video-Seek-Line"></div>
@@ -178,7 +193,7 @@ function Controller({ Props }) {
         </div>
         <div className="Extra">
           <div className="Extra-Info-Button" onClick={() => Props.setShowDetails(!Props.showDetails)}><img src="/about.png" /></div>
-          <div className="Extra-Close"  onClick={() => setPlay(false)}><img src="/cross.png" /></div>
+          <div className="Extra-Close" onClick={() => setPlay(false)}><img src="/cross.png" /></div>
         </div>
       </div>
     </div>

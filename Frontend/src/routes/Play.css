@@ -48,6 +48,8 @@ div#Controller {
     display: flex;
     flex-direction: column;
     background: linear-gradient(to bottom, transparent, #40072c63, #200314, #090105);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 1;
 }
 
 div.Controller-Top {
@@ -223,8 +225,10 @@ div.Image-Preview-Cont {
     justify-content: center;
     align-items: center;
 
-    img {
+    div {
         height: 90%;
-        width: 90%;
+        width: 100%;
+        border-radius: 20px;
+        object-fit: cover;
     }
 }

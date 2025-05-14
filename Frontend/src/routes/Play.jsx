@@ -26,16 +26,17 @@ function Play({ id }) {
         const Container = document.getElementById("Controller");
         const Player = document.getElementById("Player");
 
+        let readystate = 0;
         let timeout;
 
         document.addEventListener("mousemove", () => {
             clearTimeout(timeout); // Reset timer
-            Container.style.display = "flex"; // Show controls
+            Container.style.opacity = 1; // Show controls
             Player.style.cursor = "default";
             // Hide controls after 2 seconds of inactivity
             timeout = setTimeout(() => {
                 if (video.paused) return;
-                Container.style.display = "none"; // Hide controls
+                Container.style.opacity = 0; // Hide controls
                 Player.style.cursor = "none";
             }, 3000);
         });
@@ -70,11 +71,27 @@ function Play({ id }) {
         video.addEventListener("playing", () => { setLoading(false) });
         video.addEventListener("seeked", () => {
             audio.currentTime = video.currentTime;
-            setLoading(false);
+            readystate++;
+            if (readystate > 1) {
+                setLoading(false);
+                audio.play();
+                video.play();
+            }
+        });
+        audio.addEventListener("seeked", () => {
+            readystate++;
+            if (readystate > 1) {
+                setLoading(false);
+                audio.play();
+                video.play();
+            }
         });
         video.addEventListener("waiting", () => { setLoading(true) });
         video.addEventListener("seeking", () => {
             setLoading(true);
+            audio.pause();
+            video.pause();
+            readystate = 0;
         });
         video.addEventListener("timeupdate", () => {
             setCurrentTime(video.currentTime);
