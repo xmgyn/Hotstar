@@ -64,6 +64,10 @@ div.Navbar {
   justify-content: space-between;
 }
 
+div.Nav-Item {
+  cursor: pointer;
+}
+
 div.Hero-Image-Container {
   position: absolute;
   height: 100vh;

@@ -1,4 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
+
+import { DataContext } from '../utility';
 
 import Controller from '../components/Player/Controller';
 import Details from '../components/Player/Details';
@@ -6,10 +8,12 @@ import AudioSelect from '../components/Player/AudioSelect';
 
 import './Play.css';
 
-function Play({ seriesid = null, id }) {
+function Play({ meta }) {
+    const { details } = useContext(DataContext);
+
     const [Play, setPlay] = useState(false);
-    const [Details, setDetails] = useState(null);
     const [Loading, setLoading] = useState(true);
+    const [Audio, setAudio] = useState(details.audio_profiles[0].type);
     const [currentTime, setCurrentTime] = useState(0);
     const [showDetails, setShowDetails] = useState(false);
     const [showAudioSelect, setShowAudioSelect] = useState(false);
@@ -21,12 +25,12 @@ function Play({ seriesid = null, id }) {
         const video = videoRef.current;
         const audio = audioRef.current;
 
-        let videoSrc = `http://192.168.0.110:4373/play/${id}/video`;
-        let audioSrc = `http://192.168.0.110:4373/play/${id}/audio_hindi`;
+        let videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video`;
+        let audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}`;
 
-        if (seriesid) {
-            videoSrc = `http://192.168.0.110:4373/play/${seriesid}/${id}/video`;
-            audioSrc = `http://192.168.0.110:4373/play/${seriesid}/${id}/audio_hindi`;
+        if (meta.seriesid) {
+            videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
+            audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
         }
 
         const Container = document.getElementById("Controller");
@@ -102,16 +106,7 @@ function Play({ seriesid = null, id }) {
         video.addEventListener("timeupdate", () => {
             setCurrentTime(video.currentTime);
         });
-
-        fetch(`http://192.168.0.110:4373/getDetails/${id}`).then(
-            response => {
-                if (response.ok) return response.json();
-            })
-            .then(data => {
-                setDetails(data);
-            })
-
-
+        
         return () => {
             if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.removeEventListener('loadedmetadata', () => setLoading(false));
@@ -124,7 +119,7 @@ function Play({ seriesid = null, id }) {
 
             document.documentElement.style.setProperty("--seek-width", '0%');
         };
-    }, [id]);
+    }, [meta]);
 
     return (
         <div id="Player" className='Player'>
@@ -141,11 +136,11 @@ function Play({ seriesid = null, id }) {
                 </video>
                 <audio ref={audioRef} id="audio" crossOrigin="anonymous">
                 </audio>
-                <Controller Props={{ id, Loading, Play, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
+                <Controller Props={{ meta, Loading, Play, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
             </div>
             {(showDetails || showAudioSelect) &&
                 <div className="Overlay">
-                    {showDetails && <Details Props={{ Details, setShowDetails }} />}
+                    {showDetails && <Details Props={{ setShowDetails }} />}
                     {showAudioSelect && <AudioSelect />}
                 </div>}
         </div>

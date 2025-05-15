@@ -9,17 +9,27 @@ import { DataContext } from "./../utility";
 import './Home.css'
 
 function Home() {
-  const { data: cardData, context: currentContext, setPlay } = useContext(DataContext);
+  const { data: cardData, context: currentContext, setPlay, setMeta, setDetails } = useContext(DataContext);
 
   const [load, setLoad] = useState(false);
 
   function setFavourite() {
-    fetch(`http://192.168.0.110:4373/setFavourite?contentId=${currentContext._id}`).then(data => {
+    fetch(`http://192.168.0.110:4373/setFavourite/${currentContext._id}`).then(data => {
 
     })
       .catch(error => {
         console.error("Failed to set favourite:", error);
       })
+  }
+
+  function preparePlay(contentid, seasonid = null, seriesid = null) {
+    setMeta(seriesid ? { seriesid: seriesid, seasonid: seasonid, id: contentid } : { id: contentid });
+    fetch(`http://192.168.0.110:4373/getDetails/${contentid}`)
+    .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
+    .then(data => { 
+      setDetails(data);
+      setPlay(true);
+    })
   }
 
   return (
@@ -42,17 +52,30 @@ function Home() {
             </div>
             <div className="Interact">
               {currentContext && (currentContext.Seasons ?
-                
-                  
-                  <select className="Hero-Play-Button" name="Season 1" id="cars">{/*<div className="Hero-Play-Button" >
-                  <Play /> </div> <div className="oxygen-regular">Start Season 1</div> onClick={() => setPlay(true)} */}
-                    <optgroup label="Season 1">
-                      <option value="volvo" default>Episode 1</option>
-                      <option value="saab">Episode 2</option>
-                    </optgroup>
-                  </select>
+
+
+                <select
+                  className="Hero-Play-Button"
+                  name="Season 1"
+                  id="cars"
+                  onChange={(event) => {
+                    const selectedIndex = event.target.selectedIndex;
+                    const selectedOption = event.target.options[selectedIndex];
+                    selectedOption.value && preparePlay(
+                      currentContext.Seasons[1].Episodes[selectedIndex]._id,
+                      currentContext.Seasons[1]._id,
+                      currentContext._id
+                    );
+                  }}
+                >
+                  <optgroup label="Season 1">
+                    <option value="1">Episode 2</option>
+                    <option value="0">Episode 1</option>
+                  </optgroup>
+                </select>
+
                 :
-                <div className="Hero-Play-Button" onClick={() => setPlay(true)}>
+                <div className="Hero-Play-Button" onClick={() => preparePlay(currentContext._id)}>
                   <Play />
                   <div className="oxygen-regular">Start Watching</div>
                 </div>)
