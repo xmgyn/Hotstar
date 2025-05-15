@@ -6,8 +6,9 @@ import AudioSelect from '../components/Player/AudioSelect';
 
 import './Play.css';
 
-function Play({ id }) {
+function Play({ seriesid = null, id }) {
     const [Play, setPlay] = useState(false);
+    const [Details, setDetails] = useState(null);
     const [Loading, setLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState(0);
     const [showDetails, setShowDetails] = useState(false);
@@ -20,8 +21,13 @@ function Play({ id }) {
         const video = videoRef.current;
         const audio = audioRef.current;
 
-        const videoSrc = `http://192.168.0.110:4373/play/${id}/video`;
-        const audioSrc = `http://192.168.0.110:4373/play/${id}/audio_hindi`;
+        let videoSrc = `http://192.168.0.110:4373/play/${id}/video`;
+        let audioSrc = `http://192.168.0.110:4373/play/${id}/audio_hindi`;
+
+        if (seriesid) {
+            videoSrc = `http://192.168.0.110:4373/play/${seriesid}/${id}/video`;
+            audioSrc = `http://192.168.0.110:4373/play/${seriesid}/${id}/audio_hindi`;
+        }
 
         const Container = document.getElementById("Controller");
         const Player = document.getElementById("Player");
@@ -97,6 +103,15 @@ function Play({ id }) {
             setCurrentTime(video.currentTime);
         });
 
+        fetch(`http://192.168.0.110:4373/getDetails/${id}`).then(
+            response => {
+                if (response.ok) return response.json();
+            })
+            .then(data => {
+                setDetails(data);
+            })
+
+
         return () => {
             if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.removeEventListener('loadedmetadata', () => setLoading(false));
@@ -130,7 +145,7 @@ function Play({ id }) {
             </div>
             {(showDetails || showAudioSelect) &&
                 <div className="Overlay">
-                    {showDetails && <Details />}
+                    {showDetails && <Details Props={{ Details, setShowDetails }} />}
                     {showAudioSelect && <AudioSelect />}
                 </div>}
         </div>
