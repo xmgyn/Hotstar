@@ -13,7 +13,7 @@ export const DataProvider = ({ children }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://192.168.0.110:4373/getCollections/${tab}?rating=18203`); 
+                const response = await fetch(`http://192.168.0.110:4373/getCollections/${(tab != "Home") ? tab : "All"}?rating=18203`); 
                 const result = await response.json();
                 const shuffledResult = result.sort(() => Math.random() - 0.5);
                 setData(shuffledResult);

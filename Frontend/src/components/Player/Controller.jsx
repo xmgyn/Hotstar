@@ -75,7 +75,7 @@ function Controller({ Props }) {
     } else {
       value = 3; // Covers 40-59 seconds
     }
-    fetch(`http://192.168.0.110:4373/streamImage/${Props.id}/${minute <= 0 ? 0 : minute}/${value}`, { signal })
+    fetch(`http://192.168.0.110:4373/streamImage/${Props.meta.id}/${minute <= 0 ? 0 : minute}/${value}`, { signal })
       .then(response => response.blob())
       .then(blob => {
         const imgURL = URL.createObjectURL(blob);
@@ -144,6 +144,7 @@ function Controller({ Props }) {
       const time = (percentage * video.duration) / 100;
       video.currentTime = time;
       audio.currentTime = time;
+      document.getElementById("Image-Preview-Cont").style.setProperty("display", 'none');
       document.documentElement.style.setProperty("--seek-preview-width", '0%');
     })
 

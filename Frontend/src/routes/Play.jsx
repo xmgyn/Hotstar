@@ -119,7 +119,7 @@ function Play({ meta }) {
 
             document.documentElement.style.setProperty("--seek-width", '0%');
         };
-    }, [meta]);
+    }, [meta, Audio]);
 
     return (
         <div id="Player" className='Player'>
@@ -141,7 +141,7 @@ function Play({ meta }) {
             {(showDetails || showAudioSelect) &&
                 <div className="Overlay">
                     {showDetails && <Details Props={{ setShowDetails }} />}
-                    {showAudioSelect && <AudioSelect />}
+                    {showAudioSelect && <AudioSelect Props={{ details, setShowAudioSelect, setAudio }} />}
                 </div>}
         </div>
     );

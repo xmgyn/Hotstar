@@ -1,6 +1,8 @@
 import { Fragment } from "react";
 import { useContext } from "react";
 
+import Close from "../../assets/Close";
+
 import { DataContext } from "../../utility";
 
 function Details({ Props }) {
@@ -8,9 +10,9 @@ function Details({ Props }) {
 
     return (
         <Fragment>
-            <div id="Details-Window" className="Details-Window">
-                <div className="Details-Close" onClick={() => Props.showDetails(false)}></div>
+            <div className="Window">
                 <div className="Details-Pane">{ JSON.stringify(details) ?? "We Dont Have Any" }</div>
+                <div className="Window-Close" onClick={() => Props.showDetails(false)}><Close /></div>
             </div>
         </Fragment>
     )

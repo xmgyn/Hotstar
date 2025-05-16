@@ -68,7 +68,7 @@ div.Nav-Item {
   cursor: pointer;
 }
 
-div.Hero-Image-Container {
+div.Background-Image-Container {
   position: absolute;
   height: 100vh;
   width: 100vw;
@@ -78,7 +78,14 @@ div.Hero-Image-Container {
   z-index: 1;
 }
 
-div.Hero-Image-Overlay {
+img.Background-Image {
+  min-height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: opacity 1s ease-in-out
+}
+
+div.Background-Image-Overlay {
   background: #0000003b;
   position: absolute;
   z-index: 2;
@@ -327,7 +334,7 @@ span.loader {
 }
 
 span.loader::after {
-  content: '';  
+  content: '';
   box-sizing: border-box;
   position: absolute;
   left: 50%;
@@ -340,6 +347,42 @@ span.loader::after {
 }
 
 @keyframes rotation {
-  0% { transform: rotate(0deg) }
-  100% { transform: rotate(360deg)}
-} 
+  0% {
+    transform: rotate(0deg)
+  }
+
+  100% {
+    transform: rotate(360deg)
+  }
+}
+
+div.Play-Item-List {
+  display: none;
+  position: absolute;
+  z-index: 3;
+  width: 16vw;
+  margin: 0.5vw 0vw 0vw 2vw;
+  height: 35vh;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: white transparent;
+  background-color: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(4px) brightness(1.2);
+  border-radius: 14px;
+
+  div.Play-Item-Heading {
+    padding: 10px;
+    color: white;
+  }
+}
+
+div.Play-Item {
+  font-size: 12px;
+  color: #cac4c4;
+  padding: 2% 10%;
+}
+
+div.Play-Item:Hover {
+  background-color: #0000006e;
+  cursor: pointer;
+}
