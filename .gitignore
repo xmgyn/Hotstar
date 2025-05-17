@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 Media/*
+!Media/generate.sh
