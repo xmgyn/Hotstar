@@ -47,6 +47,7 @@ function Home() {
   useEffect(function () {
     if (!currentContext) return;
     const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
+    backgroundImageContainer.innerHTML = '';
     const backImg = document.createElement("img");
     backImg.classList.add('Background-Image');
     
