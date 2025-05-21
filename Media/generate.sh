@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ID=682780a9ffb32fa9c767427f
-
 read -p "Movie Title : " title
 
 read -p "What Is Media Type (say 0 For Series, 1 For Movie) : " movie_type
@@ -11,7 +9,7 @@ if [[ "$movie_type" == 0 ]]; then
 elif [[ "$movie_type" == 1 ]]; then
     echo "MongoDB Insertion"
     INSERT='{ Title: "'$title'", Category: "Movies", Favourite: false }'
-    OUTPUT=$(mongosh --port 27020 --quiet --eval "db.getSiblingDB('movie_database').All.insertOne('$INSERT')")
+    OUTPUT=$(mongosh --port 27020 --quiet --eval "db.getSiblingDB('movie_database').All.insertOne($INSERT)")
     echo "MongoDB Output : $OUTPUT"
 
     ID=$(echo "$OUTPUT" | grep -o "ObjectId('[^']*')" | sed "s/ObjectId('//g" | sed "s/')//g")

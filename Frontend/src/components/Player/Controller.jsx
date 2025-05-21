@@ -120,16 +120,12 @@ function Controller({ Props }) {
         let percentage = ((e.clientX - rect.left) / rect.width) * 100;
         let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage)));
         document.documentElement.style.setProperty("--seek-width", percentageFloor + '%');
-        document.documentElement.style.setProperty("--seek-preview-width", percentageFloor + '%');
         const time = (percentage * video.duration) / 100;
         video.currentTime = time;
-        audio.currentTime = time;
-        showImagePreview(time);
+        audio.currentTime = video.currentTime;
       };
       document.addEventListener("mousemove", updateProgress);
       document.addEventListener("mouseup", () => {
-        document.getElementById("Image-Preview-Cont").style.setProperty("display", 'none');
-        document.documentElement.style.setProperty("--seek-preview-width", '0%');
         document.removeEventListener("mousemove", updateProgress);
         document.removeEventListener("mouseup", arguments.callee);
       }, { once: true });
@@ -143,7 +139,7 @@ function Controller({ Props }) {
       document.documentElement.style.setProperty("--seek-width", percentage + "%");
       const time = (percentage * video.duration) / 100;
       video.currentTime = time;
-      audio.currentTime = time;
+      audio.currentTime = video.currentTime;
       document.getElementById("Image-Preview-Cont").style.setProperty("display", 'none');
       document.documentElement.style.setProperty("--seek-preview-width", '0%');
     })
@@ -187,7 +183,7 @@ function Controller({ Props }) {
   return (
     <div id="Controller" >
       <div id="Controller-Top" className="Controller-Top">
-        {video && <div className="Video-Current-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(Props.currentTime)}</div>}
+        {video && <div className="Video-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(Props.currentTime)}</div>}
         <div id="Video-Seek-Bar" className="Video-Seek-Bar">
           <div id="Image-Preview-Cont" className="Image-Preview-Cont">
           </div>
@@ -197,7 +193,7 @@ function Controller({ Props }) {
             <div id="Seek-Inner-Circle" className="Seek-Inner-Circle"></div>
           </div>
         </div>
-        {video && <div className="Video-Total-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(video.duration)}</div>}
+        {video && <div className="Video-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(video.duration)}</div>}
       </div>
       <div className="Controller-Bottom">
         <div className="Settings">

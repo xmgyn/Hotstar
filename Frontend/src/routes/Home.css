@@ -171,6 +171,7 @@ div.Tag {
 div.Horizontal-Card {
   display: flex;
   overflow: auto;
+  width: 94vw;
   scrollbar-width: none;
   position: absolute;
 
@@ -214,7 +215,7 @@ div.Navigate {
 
 div.Preview-Card {
   margin-right: 1vh;
-  width: 28vw;
+      min-width: 350px;
 }
 
 div.Text-Heading {

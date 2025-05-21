@@ -40,13 +40,12 @@ function Play({ meta }) {
         let timeout;
 
         document.addEventListener("mousemove", () => {
-            clearTimeout(timeout); // Reset timer
-            Container.style.opacity = 1; // Show controls
+            clearTimeout(timeout); 
+            Container.style.opacity = 1; 
             Player.style.cursor = "default";
-            // Hide controls after 2 seconds of inactivity
             timeout = setTimeout(() => {
                 if (video.paused) return;
-                Container.style.opacity = 0; // Hide controls
+                Container.style.opacity = 0;
                 Player.style.cursor = "none";
             }, 3000);
         });
@@ -78,7 +77,7 @@ function Play({ meta }) {
             });
         }
 
-        video.addEventListener("playing", () => { setLoading(false) });
+        video.addEventListener("playing", () => { document.getElementById("Controller").style.opacity = 1; setLoading(false) });
         video.addEventListener("seeked", () => {
             audio.currentTime = video.currentTime;
             readystate++;
@@ -96,7 +95,7 @@ function Play({ meta }) {
                 video.play();
             }
         });
-        video.addEventListener("waiting", () => { setLoading(true) });
+        video.addEventListener("waiting", () => { document.getElementById("Controller").style.opacity = 1; setLoading(true) });
         video.addEventListener("seeking", () => {
             setLoading(true);
             audio.pause();
