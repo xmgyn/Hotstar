@@ -1,6 +1,640 @@
+:root {
+    --seek-width: 0%;
+    --seek-preview-width: 0%;
+}
+
 body {
     height: 100vh;
     width: 100vw;
     margin: 0px;
     overflow: hidden;
+}
+
+div.Splash {
+    height: 100vh;
+    width: 100vw;
+    background-color: chocolate;
+}
+
+.rubik-bubbles-regular {
+  font-family: "Rubik Bubbles", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nokora-thin {
+  font-family: "Nokora", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.nokora-light {
+  font-family: "Nokora", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.nokora-regular {
+  font-family: "Nokora", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nokora-bold {
+  font-family: "Nokora", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.nokora-black {
+  font-family: "Nokora", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.oxygen-light {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.oxygen-regular {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.oxygen-bold {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+div.Navbar {
+  height: 7vh;
+  width: 89vw;
+  margin: 1vh 7vw;
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  border-radius: 20px;
+  justify-content: space-between;
+}
+
+div.Nav-Item {
+  cursor: pointer;
+}
+
+div.Background-Image-Container {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+img.Background-Image {
+  min-height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: opacity 1s ease-in-out
+}
+
+div.Background-Image-Overlay {
+  background: #0000003b;
+  position: absolute;
+  z-index: 2;
+  height: 100vh;
+  width: 100vw;
+}
+
+div.Hero-Interact {
+  height: 40vh;
+  width: 20vw;
+  position: absolute;
+  display: flex;
+  margin: 13vh 13vh;
+  justify-content: center;
+  flex-direction: column;
+}
+
+div.Hero-Tags {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  margin-bottom: 1vh;
+  height: 15%;
+  position: relative;
+  z-index: 2;
+}
+
+div.Hero-Image-Heading {
+  height: 49%;
+  width: 100%;
+  text-align: center;
+}
+
+div.Interact {
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  width: 100%;
+}
+
+div.Title-Image {
+  height: 88%;
+  position: relative;
+  color: #ffffff;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+
+  img {
+    width: 100%;
+  }
+}
+
+div.Select-Overlay {
+  background-color: #0000004a;
+}
+
+div.Play-List {
+  position: absolute;
+  z-index: 2;
+  bottom: 9vh;
+  width: 94vw;
+  left: 6vw;
+  height: 34vh;
+}
+
+div.Tag {
+  padding: 0vh 1.4vw;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px) brightness(1.2);
+  height: 70%;
+  color: white;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  text-wrap-mode: nowrap;
+}
+
+div.Horizontal-Card {
+  display: flex;
+  overflow: auto;
+  width: 94vw;
+  scrollbar-width: none;
+  position: absolute;
+
+  .End-Card {
+    margin-right: 4vw;
+  }
+}
+
+div.Card {
+  margin: 0.8vh;
+  position: relative;
+  height: 30vh;
+  width: 10vw;
+  border-radius: 18px;
+  background: #00000096;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.5s ease-in-out;
+  min-width: 150px;
+
+  img {
+    height: 100%;
+    min-width: 100%;
+    border-radius: 18px;
+  }
+}
+
+div.Card-Heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 95%;
+}
+
+div.Navigate {
+  display: flex;
+  width: 40%;
+  justify-content: end;
+}
+
+div.Preview-Card {
+  margin-right: 1vh;
+      min-width: 350px;
+}
+
+div.Text-Heading {
+  color: #FFFFFF;
+  font-size: 1.7rem;
+  margin: 20px 10px;
+}
+
+.Hero-Play-Button {
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  min-height: 50px;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px) brightness(1.2);
+  height: 6vh;
+  border-radius: 14px;
+  width: 16vw;
+  display: grid;
+  grid-template-columns: 30% 70%;
+  grid-gap: 4%;
+  align-items: center;
+
+  svg {
+    height: 54%;
+    justify-self: self-end;
+  }
+
+  div {
+    color: #FFFFFF;
+  }
+}
+
+div.Hero-Play-Button:Hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+div.Hero-Favourite {
+  z-index: 2;
+  height: 100%;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    height: 75%;
+    width: 80%;
+  }
+}
+
+div.Nav-Left {
+  align-items: center;
+  width: 29vw;
+  color: #ffffffba;
+  display: flex;
+  justify-content: space-between;
+}
+
+div.Nav-Right {
+  width: 16%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+div.Nav-Item {
+  font-size: 18px;
+}
+
+div.Nav-Active {
+  color: white;
+}
+
+div.Profile {
+  img {
+    height: 5vh;
+    width: 2.5vw;
+  }
+}
+
+div.Search-Box {
+  background-color: rgb(255 255 255 / 9%);
+  backdrop-filter: blur(7px) brightness(1.2);
+  width: 62%;
+  height: 72%;
+  border-radius: 14px;
+}
+
+div.Arrow-Left {
+  height: 6vh;
+
+  svg {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+div.Arrow-Right {
+  height: 6vh;
+
+  svg {
+    height: 100%;
+    width: 100%;
+    transform: rotate(180deg);
+  }
+}
+
+span.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  background: linear-gradient(0deg, rgba(255, 61, 0, 0.2) 33%, #ff3d00 100%);
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+span.loader::after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #263238;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg)
+  }
+
+  100% {
+    transform: rotate(360deg)
+  }
+}
+
+div.Play-Item-List {
+  display: none;
+  position: absolute;
+  z-index: 3;
+  width: 16vw;
+  margin: 0.5vw 0vw 0vw 2vw;
+  height: 35vh;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: white transparent;
+  background-color: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(4px) brightness(1.2);
+  border-radius: 14px;
+
+  div.Play-Item-Heading {
+    padding: 10px;
+    color: white;
+  }
+}
+
+div.Play-Item {
+  font-size: 12px;
+  color: #cac4c4;
+  padding: 2% 10%;
+}
+
+div.Play-Item:Hover {
+  background-color: #0000006e;
+  cursor: pointer;
+}
+
+
+div.Player {
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    display: flex;
+    justify-content: center;
+}
+
+div.Play {
+    width: 100%;
+    height: 100%;
+}
+
+div.Overlay {
+    height: 100%;
+    width: 100%;
+    background-color: #0c0c0ca8;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+video {
+    height: 100%;
+    width: 100%;
+    /* object-fit: cover; */
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+div#Controller {
+    user-select: none;
+    position: absolute;
+    bottom: 0;
+    background: transparent;
+    height: 30%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, transparent, #40072c63, #200314, #090105);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 1;
+}
+
+div.Controller-Top {
+    height: 30%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+}
+
+div.Video-Seek-Bar {
+    width: 85%;
+    background: #FFFFFF;
+    height: 10%;
+    border-radius: 20px;
+    display: flex;
+    justify-content: left;
+    position: relative;
+}
+
+div.Video-Seek-Bar:hover {
+    height: 15%;
+    cursor: pointer;
+
+    div.Video-Seek-Current {
+        height: 30px;
+        width: 30px;
+    }
+}
+
+div.Video-Seek-Preview-Line {
+    width: var(--seek-preview-width);
+    position: absolute;
+    background: #e47aa4;
+    border-radius: 20px;
+    height: 100%;
+}
+
+div.Video-Seek-Line {
+    width: var(--seek-width);
+    background: #ff0068;
+    position: absolute;
+    border-radius: 20px;
+    height: 100%;
+}
+
+div.Video-Seek-Current {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #ff0068;
+    transform: translate(-50%, -30%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: var(--seek-width);
+}
+
+div.Seek-Inner-Circle {
+    height: 60%;
+    width: 60%;
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+div.Video-Time {
+    color: #ffffff;
+    font-size: 19px;
+    width: 7%;
+    height: 100%;
+    margin: 0% 2%;
+    justify-content: center;
+    display: flex;
+    margin: 0% 2%;
+    align-items: center;
+}
+
+div.Controller-Bottom {
+    height: 70%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+
+    div.Controls {
+        height: 50%;
+        width: 50%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        div.Controls-Previous,
+        div.Controls-Next {
+            height: 60%;
+            width: 6%;
+        }
+
+        div {
+            height: 100%;
+            cursor: pointer;
+
+            img {
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        div.Controls-Seek-Loading {
+            animation: spin 2s linear infinite;
+        }
+
+
+    }
+
+    div.Settings,
+    div.Extra {
+        height: 26%;
+        width: 8%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background-color: #48484878;
+        border: 2px solid #ff0068;
+        border-radius: 10px;
+        padding: 0.5%;
+
+        div {
+            height: 90%;
+            width: 30%;
+            cursor: pointer;
+
+            img {
+                height: 100%;
+                width: 100%;
+            }
+        }
+    }
+}
+
+
+div.Window {
+    height: 30%;
+    width: 40%;
+    background-color: #0e0f0fe6;
+    position: absolute;
+    border: 2px solid #ff0068;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 5% 80% 5% 8% 2%;
+
+    div.Window-Close {
+        svg {
+            height: 100%;
+            width: 100%;
+        }
+    }
+}
+
+div.Image-Preview-Cont {
+    display: none;
+    position: absolute;
+    background: #000000;
+    border: 2px solid #ff0068;
+    border-radius: 20px;
+    height: 160px;
+    width: 240px;
+    left: var(--seek-preview-width);
+    transform: translate(-50%, -180px);
+    justify-content: center;
+    align-items: center;
+
+    div {
+        height: 90%;
+        width: 100%;
+        border-radius: 20px;
+        object-fit: cover;
+    }
 }
