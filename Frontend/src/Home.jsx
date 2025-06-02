@@ -37,7 +37,7 @@ function Splash() {
   )
 }
 
-function Navbar() {
+function Navbar({ changeTab }) {
   const shift = (event) => {
     document.querySelector("div.Nav-Active").classList.remove('Nav-Active');
     event.target.classList.add("Nav-Active");
@@ -46,47 +46,20 @@ function Navbar() {
 
   return (
     <div className="Navbar">
-      <div className="Nav-Left">
-        <div className="Nav-Item Nav-Active oxygen-bold" onClick={shift}>Home</div>
-        <div className="Nav-Item oxygen-bold" onClick={shift}>Movies</div>
-        <div className="Nav-Item oxygen-bold" onClick={shift}>Series</div>
-        <div className="Nav-Item oxygen-bold" onClick={shift}>Favourites</div>
-      </div>
-      <div className="Nav-Right">
-        <div className="Search-Box"></div>
-        <div className="Profile"><img src="IMG_2784.JPG" /></div>
-      </div>
+      <div className="Nav-Item Nav-Active oxygen-bold" onClick={shift}>Home</div>
+      <div className="Nav-Item oxygen-bold" onClick={shift}>Movies</div>
+      <div className="Nav-Item oxygen-bold" onClick={shift}>Series</div>
+      <div className="Nav-Item oxygen-bold" onClick={shift}>Favourites</div>
     </div>
   )
 }
-
-function preparePlay(contentid, seasonid = null, seriesid = null) {
-  setMeta(seriesid ? { seriesid: seriesid, seasonid: seasonid, id: contentid } : { id: contentid });
-  fetch(`/getDetails/${contentid}`)
-    .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
-    .then(data => {
-      setDetails(data);
-      setPlay(true);
-    })
-}
-
-const handleSelect = (selectedIndex) => {
-  const selectedEpisode = currentContext.Seasons[1].Episodes[selectedIndex];
-
-  if (selectedEpisode) {
-    preparePlay(
-      selectedEpisode._id,
-      currentContext.Seasons[1]._id,
-      currentContext._id
-    );
-  }
-};
 
 function Home({ cardData, currentView, set, query }) {
   const [splashNegative, setSplashNegative] = useState(false);
   const [load, setLoad] = useState(false);
 
   const horizontalCard = useRef(null);
+  const PlayItemList = useRef(null);
 
   let cardContainer, tagsContainer, iconImageContainer, backgroundImageContainer;
 
@@ -144,11 +117,12 @@ function Home({ cardData, currentView, set, query }) {
 
       // Keep The Spinner On
 
-      if (horizontalCard.current) horizontalCardElements.forEach(card => horizontalCard.current.appendChild(card));
+      if (horizontalCard.current) {
+        horizontalCardElements.forEach(card => horizontalCard.current.appendChild(card));
+        CardSelect(cardData[0]);
+      }
 
       // Turn Off The Spinner
-
-      CardSelect(cardData[0]);
     }
     LoadCard();
     // LoadCards Should Perform Pagination Of Data, Also Discard If Insufficient Data
@@ -209,6 +183,59 @@ function Home({ cardData, currentView, set, query }) {
     return currentView.Favourite ? "#fb0505" : "#00000000";
   }
 
+  function preparePlay() {
+    if (currentView.Seasons) {
+      if (PlayItemList.current) {
+        PlayItemList.current.innerHTML = "";
+
+        /*
+<div className="Play-Item-List"> {
+Object.entries(currentView.Seasons).map(([seasonNumber, seasonData]) => ( 
+  <div key={seasonNumber}> <div className="Play-Item-Heading oxygen-bold">Season {seasonNumber}</div> {Object.values(seasonData.Episodes).map((episode) => ( <div key={episode["Number"]} className="Play-Item oxygen-regular" onClick={preparePlay}> Episode {episode["Number"]} : {episode["Name"]} </div> ))} </div> ))} </div>
+        */
+
+        Object.entries(currentView.Seasons).forEach(([seasonNumber, seasonData]) => {
+          const seasonDiv = document.createElement("div");
+          const headingDiv = document.createElement("div");
+          headingDiv.className = "Play-Item-Heading oxygen-bold";
+          headingDiv.textContent = `Season ${seasonNumber}`;
+          seasonDiv.appendChild(headingDiv);
+
+          Object.values(seasonData.Episodes).forEach((episode) => {
+            const episodeDiv = document.createElement("div");
+            episodeDiv.className = "Play-Item oxygen-regular";
+            episodeDiv.textContent = `Episode ${episode["Number"]} : ${episode["Name"]}`;
+            episodeDiv.onclick = () => preparePlay(episode);
+            seasonDiv.appendChild(episodeDiv);
+          });
+
+          PlayItemList.current.appendChild(seasonDiv);
+
+
+        });
+
+        // Fetch Audio And Details First, Then Play
+
+        // set.setMeta({ seriesid: seriesid, seasonid: seasonid, id: contentid });
+        // fetch(`/getDetails/${contentid}`)
+        //   .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
+        //   .then(data => {
+        //     setDetails(data);
+        //     setPlay(true);
+        //   })
+      }
+    }
+    else {
+      // setMeta({ id: contentid });
+      // fetch(`/getDetails/${contentid}`)
+      //   .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
+      //   .then(data => {
+      //     setDetails(data);
+      //     setPlay(true);
+      //   })
+    }
+  }
+
   return (
     <React.Fragment>
       {
@@ -217,7 +244,7 @@ function Home({ cardData, currentView, set, query }) {
             <div className="Background-Image-Container">
             </div>
             <div className="Background-Image-Overlay"></div>
-            <Navbar />
+            <Navbar changeTab={set.setTab} />
             <div className="Hero-Interact">
               <div className="Hero-Tags">
               </div>
@@ -226,31 +253,10 @@ function Home({ cardData, currentView, set, query }) {
               </div>
               <div className="Interact">
                 <div>
-                  {currentView && currentView.Seasons ?
-                    <React.Fragment>
-                      <div className="Hero-Play-Button" onClick={() => document.querySelector('div.Play-Item-List').style.display = "block"}>
-                        <Icon type={"Play"} />
-                        <div className="oxygen-regular">Start Watching</div>
-                      </div>
-                      <div className="Play-Item-List">
-                        {Object.entries(currentView.Seasons).map(([seasonNumber, seasonData]) => (
-                          <div key={seasonNumber}>
-                            <div className="Play-Item-Heading oxygen-bold">Season {seasonNumber}</div>
-                            {Object.values(seasonData.Episodes).map((episode) => (
-                              <div key={episode["Number"]} className="Play-Item oxygen-regular" onClick={preparePlay}>
-                                Episode {episode["Number"]} : {episode["Name"]}
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </React.Fragment>
-                    :
-                    <div className="Hero-Play-Button" onClick={preparePlay}>
-                      <Icon type={"Play"} />
-                      <div className="oxygen-regular">Start Watching</div>
-                    </div>
-                  }
+                  <div className="Hero-Play-Button" onClick={preparePlay}>
+                    <Icon type={"WatchNow"} />
+                    <div className="oxygen-regular">Start Watching</div>
+                  </div>
                 </div>
                 {currentView && <div className="Hero-Favourite" onClick={setFavourite}><Icon type={"Like"} fill={getFavourite(currentView)} /></div>}
               </div>
@@ -261,6 +267,7 @@ function Home({ cardData, currentView, set, query }) {
                 <div className="Navigate">
                   <div className="Arrow-Left"><Icon type={"Left"} /></div>
                   <div className="Arrow-Right"><Icon type={"Left"} /></div>
+                  <div className="Profile"><img src="IMG_2785.JPG" /></div>
                 </div>
               </div>
               <div ref={horizontalCard} className="Horizontal-Card">
@@ -269,6 +276,7 @@ function Home({ cardData, currentView, set, query }) {
           </React.Fragment>
           : <Splash />
       }
+      <div ref={PlayItemList} className="Play-Item-List" />
     </React.Fragment>
   )
 }

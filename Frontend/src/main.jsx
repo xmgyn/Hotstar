@@ -52,7 +52,7 @@ function Main() {
   return (
     <React.Fragment>
       <div style={{ display: play ? "none" : "block" }}>
-        <Home cardData={data} currentView={context} set={{ setContext, setPlay, setMeta, setDetails }} query={{}} />
+        <Home cardData={data} currentView={context} set={{ setContext, setPlay, setTab, setMeta, setDetails }} query={{}} />
       </div>
       {play && <Play key={context._id} meta={meta} />}
     </React.Fragment>
