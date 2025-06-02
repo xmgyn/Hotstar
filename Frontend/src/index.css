@@ -233,7 +233,11 @@ div.Navigate {
 
 div.Preview-Card {
   margin-right: 1vh;
-      min-width: 350px;
+  min-width: 350px;
+
+  img:first-child {
+    display: none;
+  }
 }
 
 div.Text-Heading {
