@@ -7,7 +7,7 @@ import Play from './Play'
 
 import './index.css'
 
-function Error(msg) {
+function Message(type, msg) {
   return (
     <div>{msg}</div>
   )
@@ -16,29 +16,31 @@ function Error(msg) {
 function Main() {
   // Universal Data
   const [data, setData] = useState(null);
+  const [message, setMessage] = useState(null);
 
   // Home Page
+  const [splashNegative, setSplashNegative] = useState(false);
   const [context, setContext] = useState(null);
-  const [tab, setTab] = useState("All");
+  const [rating, setRating] = useState(18203);  // 18203
+  const [tab, setTab] = useState("Home");
 
   // Player Page
-  const [details, setDetails] = useState(null);
   const [play, setPlay] = useState(false);
-
+  const [details, setDetails] = useState(null);
   const [meta, setMeta] = useState();
 
   // All Query Selectors
   const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
   const iconImageContainer = document.querySelector('div.Title-Image');
   const tagsContainer = document.querySelector('div.Hero-Tags');
-
   const arrowLeft = document.querySelector('.Arrow-Left');
   const arrowRight = document.querySelector('.Arrow-Right');
 
   useEffect(() => {
     const fetchData = async () => {
+      setSplashNegative(false);
       try {
-        const response = await fetch(`http://192.168.0.110:4373/getCollections/${(tab != "Home") ? tab : "All"}?rating=18203`);
+        const response = await fetch(`http://192.168.0.110:4373/getCollections/${(tab != "Home") ? tab : "All"}${(rating) ? '?rating=' + rating : ''}`);
         const result = await response.json();
         const shuffledResult = result.sort(() => Math.random() - 0.5);
         setData(shuffledResult);
@@ -52,7 +54,7 @@ function Main() {
   return (
     <React.Fragment>
       <div style={{ display: play ? "none" : "block" }}>
-        <Home cardData={data} currentView={context} set={{ setContext, setPlay, setTab, setMeta, setDetails }} query={{}} />
+        <Home cardData={data} currentView={context} splashNegative={splashNegative} tab={tab} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative }} query={{}} />
       </div>
       {play && <Play key={context._id} meta={meta} />}
     </React.Fragment>

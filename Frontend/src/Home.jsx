@@ -37,16 +37,29 @@ function Splash() {
   )
 }
 
-function Navbar({ changeTab }) {
+function Account() {
+  useEffect(function () {
+
+  }, [])
+}
+
+function Navbar({ tab, changeTab }) {
   const shift = (event) => {
-    document.querySelector("div.Nav-Active").classList.remove('Nav-Active');
-    event.target.classList.add("Nav-Active");
+    const navActive = document.querySelector("div.Nav-Active");
+    if (navActive) navActive.classList.remove('Nav-Active');
+    document.title = event.target.firstChild.data + ' | Hotstar';
     changeTab(event.target.firstChild.data);
   }
 
+  useEffect(() => {
+    const activeTab = Array.from(document.querySelectorAll(".Nav-Item")).find((item) => item.textContent === tab);
+    document.querySelector("div.Nav-Active")?.classList.remove("Nav-Active");
+    activeTab.classList.add("Nav-Active");
+  },[])
+
   return (
     <div className="Navbar">
-      <div className="Nav-Item Nav-Active oxygen-bold" onClick={shift}>Home</div>
+      <div className="Nav-Item oxygen-bold" onClick={shift}>Home</div>
       <div className="Nav-Item oxygen-bold" onClick={shift}>Movies</div>
       <div className="Nav-Item oxygen-bold" onClick={shift}>Series</div>
       <div className="Nav-Item oxygen-bold" onClick={shift}>Favourites</div>
@@ -54,8 +67,7 @@ function Navbar({ changeTab }) {
   )
 }
 
-function Home({ cardData, currentView, set, query }) {
-  const [splashNegative, setSplashNegative] = useState(false);
+function Home({ cardData, tab, currentView, splashNegative, set, query }) {
   const [load, setLoad] = useState(false);
 
   const horizontalCard = useRef(null);
@@ -108,9 +120,7 @@ function Home({ cardData, currentView, set, query }) {
           })
         )
       );
-
-      setSplashNegative(true);
-
+      
       backgroundImageContainer = document.querySelector("div.Background-Image-Container");
       iconImageContainer = document.querySelector("div.Title-Image");
       tagsContainer = document.querySelector("div.Hero-Tags");
@@ -118,10 +128,12 @@ function Home({ cardData, currentView, set, query }) {
       // Keep The Spinner On
 
       if (horizontalCard.current) {
+        horizontalCard.current.innerHTML = "";
         horizontalCardElements.forEach(card => horizontalCard.current.appendChild(card));
         CardSelect(cardData[0]);
       }
 
+      set.setSplashNegative(true);
       // Turn Off The Spinner
     }
     LoadCard();
@@ -213,70 +225,147 @@ Object.entries(currentView.Seasons).map(([seasonNumber, seasonData]) => (
 
 
         });
-
-        // Fetch Audio And Details First, Then Play
-
-        // set.setMeta({ seriesid: seriesid, seasonid: seasonid, id: contentid });
-        // fetch(`/getDetails/${contentid}`)
-        //   .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
-        //   .then(data => {
-        //     setDetails(data);
-        //     setPlay(true);
-        //   })
       }
     }
     else {
-      // setMeta({ id: contentid });
-      // fetch(`/getDetails/${contentid}`)
-      //   .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
-      //   .then(data => {
-      //     setDetails(data);
-      //     setPlay(true);
-      //   })
+
     }
+  }
+
+  function startPlay() {
+    // Fetch Audio And Details First, Then Play
+
+    // set.setMeta({ seriesid: seriesid, seasonid: seasonid, id: contentid });
+    // fetch(`/getDetails/${contentid}`)
+    //   .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
+    //   .then(data => {
+    //     setDetails(data);
+    //     setPlay(true);
+    //   })
+
+    // setMeta({ id: contentid });
+    // fetch(`/getDetails/${contentid}`)
+    //   .then(response => { if (response.ok) return response.json() })    // Throw Error If Not Found
+    //   .then(data => {
+    //     setDetails(data);
+    //     setPlay(true);
+    //   })
   }
 
   return (
     <React.Fragment>
-      {
-        splashNegative ?
-          <React.Fragment>
-            <div className="Background-Image-Container">
-            </div>
-            <div className="Background-Image-Overlay"></div>
-            <Navbar changeTab={set.setTab} />
-            <div className="Hero-Interact">
-              <div className="Hero-Tags">
+      <React.Fragment>
+              <div className="Background-Image-Container">
               </div>
-              <div className="Hero-Image-Heading">
-                <div className="Title-Image"></div>
+              <div className="Background-Image-Overlay"></div>
+              <Navbar tab={tab} changeTab={set.setTab} />
+              <div className="Hero-Interact">
+                <div className="Hero-Tags">
+                </div>
+                <div className="Hero-Image-Heading">
+                  <div className="Title-Image"></div>
+                </div>
+                <div className="Interact">
+                  <div>
+                    <div className="Hero-Play-Button" onClick={preparePlay}>
+                      <Icon type={"WatchNow"} />
+                      <div className="oxygen-regular">Start Watching</div>
+                    </div>
+                  </div>
+                  {currentView && <div className="Hero-Favourite" onClick={setFavourite}><Icon type={"Like"} fill={getFavourite(currentView)} /></div>}
+                </div>
               </div>
-              <div className="Interact">
-                <div>
-                  <div className="Hero-Play-Button" onClick={preparePlay}>
-                    <Icon type={"WatchNow"} />
-                    <div className="oxygen-regular">Start Watching</div>
+              <div className="Play-List">
+                <div className="Card-Heading">
+                  <div className="Text-Heading oxygen-bold">Collections</div>
+                  <div className="Navigate">
+                    <div className="Arrow-Left"><Icon type={"Left"} /></div>
+                    <div className="Arrow-Right"><Icon type={"Left"} /></div>
+                    <div className="Profile"><img src="IMG_2785.JPG" /></div>
                   </div>
                 </div>
-                {currentView && <div className="Hero-Favourite" onClick={setFavourite}><Icon type={"Like"} fill={getFavourite(currentView)} /></div>}
-              </div>
-            </div>
-            <div className="Play-List">
-              <div className="Card-Heading">
-                <div className="Text-Heading oxygen-bold">Collections</div>
-                <div className="Navigate">
-                  <div className="Arrow-Left"><Icon type={"Left"} /></div>
-                  <div className="Arrow-Right"><Icon type={"Left"} /></div>
-                  <div className="Profile"><img src="IMG_2785.JPG" /></div>
+                <div ref={horizontalCard} className="Horizontal-Card">
                 </div>
               </div>
-              <div ref={horizontalCard} className="Horizontal-Card">
-              </div>
-            </div>
-          </React.Fragment>
-          : <Splash />
-      }
-      <div ref={PlayItemList} className="Play-Item-List" />
+      </React.Fragment>
+      { splashNegative ? <React.Fragment /> : <Splash /> }
+      {/* <div className="Background-Image-Overlay Extra-Overlay">
+        <Icon type={"PopUpClose"} />
+      </div>
+      <div ref={PlayItemList} className="Play-Item-List Over-Block" /> 
+      <div className="Developer-Settings Over-Block">
+        <div className="Developer-Ping"></div>
+        <div className="Developer-Code">
+          <input />
+        </div>
+        <div className="Developer-Details"></div>
+        <div className="Developer-Logs">
+          <table className="Logs-Table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.values({
+  "0": {
+    "timestamp": "2025-06-02T09:43:53.249Z",
+    "message": "MongoDB Connected"
+  },
+  "1": {
+    "timestamp": "2025-06-02T09:44:04.339Z",
+    "message": "Successful Fetching : {\"_id\":\"682893f78c811c4ea967427f\"}"
+  },
+  "2": {
+    "timestamp": "2025-06-02T09:44:04.384Z",
+    "message": "Successful Updating : {\"$set\":{\"Favourite\":true}}"
+  },
+  "3": {
+    "timestamp": "2025-06-02T09:44:04.384Z",
+    "message": "Sucessfully Set Favourite : 682893f78c811c4ea967427f"
+  },
+  "4": {
+    "timestamp": "2025-06-02T09:44:49.389Z",
+    "message": "Successful Fetching : {\"_id\":\"681a3f8f9895e2705697eddc\"}"
+  },
+  "5": {
+    "timestamp": "2025-06-02T09:44:49.392Z",
+    "message": "Successful Fetching : {\"_id\":\"682893f78c811c4ea967427f\"}"
+  },
+  "6": {
+    "timestamp": "2025-06-02T09:44:49.393Z",
+    "message": "Successful Fetching : {\"_id\":\"68284c4fcc05eb920967427f\"}"
+  },
+  "7": {
+    "timestamp": "2025-06-02T09:44:49.396Z",
+    "message": "Successful Fetching : {\"_id\":\"6828e8308c8c5f371567427f\"}"
+  },
+  "8": {
+    "timestamp": "2025-06-02T09:44:49.397Z",
+    "message": "Successful Fetching : {\"_id\":\"68298d4c15356e59b467427f\"}"
+  },
+  "9": {
+    "timestamp": "2025-06-02T09:44:49.403Z",
+    "message": "Successful Fetching : {\"_id\":\"6829d4bb3d2e852a3467427f\"}"
+  },
+  "10": {
+    "timestamp": "2025-06-02T09:44:49.404Z",
+    "message": "Successful Fetching : {\"_id\":\"682a8590c68131c89967427f\"}"
+  },
+  "11": {
+    "timestamp": "2025-06-02T09:44:49.406Z",
+    "message": "Successful Fetching : {\"_id\":\"682b12faca44e2836067427f\"}"
+  }}).map((log, index) => (
+                <tr key={index}>
+                  <td>{log.timestamp}</td>
+                  <td>{log.message}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>*/}
     </React.Fragment>
   )
 }

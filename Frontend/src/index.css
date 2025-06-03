@@ -15,6 +15,8 @@ div.Splash {
   height: 100vh;
   width: 100vw;
   background-color: chocolate;
+  position: absolute;
+  z-index: 2;
 }
 
 .rubik-bubbles-regular {
@@ -335,16 +337,109 @@ div.Arrow-Right {
   }
 }
 
-div.Arrow-Left:hover, div.Arrow-Right:hover {
+div.Arrow-Left:hover,
+div.Arrow-Right:hover {
   svg {
     fill: #ff0068;
     stroke: #ff0068;
   }
 }
 
-div.Arrow-Left:active, div.Arrow-Right:active {
+div.Arrow-Left:active,
+div.Arrow-Right:active {
   svg {
     scale: 0.8
+  }
+}
+
+div.Extra-Overlay {
+  background: #0000006b;
+
+  svg {
+    height: 5%;
+    width: 5%;
+    position: absolute;
+    right: 3%;
+    top: 5%;
+    fill: white;
+    cursor: pointer;
+  }
+}
+
+div.Developer-Settings {
+  position: absolute;
+  z-index: 2;
+  top: 25%;
+  width: 50%;
+  border-radius: 20px;
+  left: 25%;
+  height: 50%;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  grid-template-rows: 20% 80%;
+}
+
+div.Developer-Code {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  input {
+    width: 90%;
+    height: 50%;
+    border-radius: 10px;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem;
+    font-size: 20px;
+    background: #969794;
+  }
+}
+
+div.Developer-Logs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  overflow: hidden;
+
+  table.Logs-Table {
+    height: 90%;
+    background: #000000;
+    width: 92%;
+    display: grid;
+    grid-template-rows: 10% 90%;
+    border-radius: 20px;
+
+    thead {
+      grid-row: 1;
+      height: 100%;
+      width: 100%;
+      align-content: center;
+
+      tr {
+        display: grid;
+        grid-template-columns: 30% 70%;
+      }
+    }
+
+    tbody {
+      grid-row: 2;
+      overflow: scroll;
+      display: block;
+      height: 100%;
+      width: 100%;
+      scrollbar-width: thin;
+
+      tr {
+        display: grid;
+        grid-template-columns: 30% 70%;
+      }
+    }
+
+    td {
+      padding: 15px;
+    }
   }
 }
 
@@ -382,6 +477,12 @@ span.loader::after {
   }
 }
 
+div.Over-Block {
+  background-color: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(4px) brightness(1.2);
+  border-radius: 14px;
+}
+
 div.Play-Item-List {
   position: absolute;
   z-index: 3;
@@ -391,9 +492,6 @@ div.Play-Item-List {
   overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: white transparent;
-  background-color: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(4px) brightness(1.2);
-  border-radius: 14px;
 
   div.Play-Item-Heading {
     padding: 10px;
