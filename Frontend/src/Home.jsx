@@ -32,7 +32,12 @@ async function CardBlob(id) {
 function Splash() {
   return (
     <Fragment>
-      <div className="Splash"></div>
+      <div className="Splash">
+        <div className="Splash-Element">
+          <img src="logo.png" />
+          <span class="Splash-loader"></span>
+        </div>
+      </div>
     </Fragment>
   )
 }
@@ -41,7 +46,6 @@ function Navbar({ changeTab }) {
   const shift = (event) => {
     const navActive = document.querySelector("div.Nav-Active");
     if (navActive) navActive.classList.remove('Nav-Active');
-    console.log(event.target)
     event.target.classList.add('Nav-Active');
     document.title = event.target.firstChild.data + ' | Hotstar';
     changeTab(event.target.firstChild.data);
@@ -57,7 +61,7 @@ function Navbar({ changeTab }) {
   )
 }
 
-function Account({ close }) {
+function Account({ rating, close, setRating }) {
   const LogsList = useRef(null);
 
   useEffect(function () {
@@ -85,12 +89,14 @@ function Account({ close }) {
   return (
     <React.Fragment>
       <div className="Background-Image-Overlay Extra-Overlay">
-        <Icon type={"PopUpClose"} onClick={close}/>
+        <div onClick={close}>
+          <Icon type={"PopUpClose"} />
+        </div>
       </div>
       <div className="Developer-Settings Over-Block">
         <div className="Developer-Ping"></div>
         <div className="Developer-Code oxygen-regular">
-          <input placeholder="Enter Developers Code" />
+          <input value={rating} placeholder="Enter Developers Code" onChange={(e) => setRating(e.target.value)} />
         </div>
         <div className="Developer-Details"></div>
         <div className="Developer-Logs">
@@ -115,7 +121,8 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
   const [accountSettings, setAccountSettings] = useState(false);
 
   const horizontalCard = useRef(null);
-  const PlayItemList = useRef(null);
+  const playItemList = useRef(null);
+  const lastCardRef = useRef(null);
 
   let cardContainer;
 
@@ -125,13 +132,19 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
   const tagsContainer = document.querySelector('div.Hero-Tags');
   const year = document.querySelector('div.Release-Year');
   const duration = document.querySelector('div.Release-Duration');
-  const arrowLeft = document.querySelector('.Arrow-Left');
-  const arrowRight = document.querySelector('.Arrow-Right');
 
   useEffect(() => {
     if (!cardData) return;
 
-    cardData = cardData.slice(0, 9);
+    cardData = cardData.slice(0, 14);
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          console.log("You Reacheed The End");
+        }
+      },
+      { rootMargin: "100px" }
+    );
 
     async function LoadCard() {
       // Fetch All Image And Prepare Blob URLs
@@ -179,8 +192,16 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
       if (horizontalCard.current) {
         horizontalCard.current.innerHTML = "";
         horizontalCardElements.forEach(card => horizontalCard.current.appendChild(card));
+        const lastCard = document.createElement("div");
+        lastCard.classList.add('More-Fetch');
+        lastCard.innerHTML = '<span class="Splash-loader"></span>';
+        horizontalCard.current.appendChild(lastCard);
+        lastCardRef.current = lastCard;
+        observer.observe(lastCardRef.current);
         CardSelect(cardData[0]);
       }
+
+      document.title = 'Home | Hotstar';
 
       set.setSplashNegative(true);
       // Turn Off The Spinner
@@ -192,6 +213,7 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
       // Clean The Cards
       // URL.revokeObjectURL(images.icon);
       // URL.revokeObjectURL(images.background);
+      // if (lastCardRef.current) observer.unobserve(lastCardRef.current);
     };
 
   }, [cardData]);
@@ -295,8 +317,8 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
 
   function preparePlay() {
     if (currentView.Seasons) {
-      if (PlayItemList.current) {
-        PlayItemList.current.innerHTML = "";
+      if (playItemList.current) {
+        playItemList.current.innerHTML = "";
 
         /*
   <div className="Play-Item-List"> {
@@ -319,7 +341,7 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
             seasonDiv.appendChild(episodeDiv);
           });
 
-          PlayItemList.current.appendChild(seasonDiv);
+          playItemList.current.appendChild(seasonDiv);
 
 
         });
@@ -397,7 +419,7 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
             <div className="Navigate">
               <div className="Arrow-Left" onClick={() => scroll()}><Icon type={"Left"} /></div>
               <div className="Arrow-Right" onClick={scroll}><Icon type={"Left"} /></div>
-              <div className="Profile" onClick={() => setAccountSettings(true)}>{rating === 18203 ? <img src="IMG_2785.JPG" /> : <img src="IMG_2784.JPG" />}</div>
+              <div className="Profile" onClick={() => setAccountSettings(true)}>{rating === '18203' ? <img src="IMG_2785.JPG" /> : <img src="IMG_2784.JPG" />}</div>
             </div>
           </div>
           <div ref={horizontalCard} className="Horizontal-Card">
@@ -405,8 +427,8 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
         </div>
       </React.Fragment>
       {splashNegative ? <React.Fragment /> : <Splash />}
-      {/* <div ref={PlayItemList} className="Play-Item-List Over-Block" />  */}
-      {accountSettings && <Account close={() => setAccountSettings(false)} />}
+      {/* <div ref={playItemList} className="Play-Item-List Over-Block" />  */}
+      {accountSettings && <Account rating={rating} setRating={set.setRating} close={() => setAccountSettings(false)} />}
     </React.Fragment>
   )
 }

@@ -21,7 +21,7 @@ function Main() {
   // Home Page
   const [splashNegative, setSplashNegative] = useState(false);
   const [context, setContext] = useState(null);
-  const [rating, setRating] = useState(18203);  // 18203
+  const [rating, setRating] = useState('');  // 18203
   const [tab, setTab] = useState("Home");
 
   // Player Page

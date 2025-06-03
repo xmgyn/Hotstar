@@ -14,9 +14,52 @@ body {
 div.Splash {
   height: 100vh;
   width: 100vw;
-  background-color: chocolate;
+  background-color: #a90145;
   position: absolute;
   z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  div.Splash-Element {
+    height: 60%;
+    width: 15%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    img {
+      width: 100%;
+      object-fit: contain;
+    }
+  }
+}
+
+.Splash-loader {
+  width: 48px;
+  height: 48px;
+  background: #fff;
+  border-radius: 50%;
+  position: relative;
+  animation: skLinRotate 1s ease-in-out infinite alternate;
+}
+
+.Splash-loader:after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: #ff0068;
+}
+
+@keyframes skLinRotate {
+
+  95%,
+  100% {
+    transform: rotate(840deg)
+  }
 }
 
 .rubik-bubbles-regular {
@@ -286,6 +329,15 @@ div.Preview-Trailer {
   }
 }
 
+div.More-Fetch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0vw 2vw; 
+  height: 30vh;
+  width: 10vw;
+}
+
 div.Text-Heading {
   color: #FFFFFF;
   font-size: 1.7rem;
@@ -391,7 +443,8 @@ div.Arrow-Right:active {
 div.Extra-Overlay {
   background: #0000006b;
 
-  svg {
+
+  div>svg {
     height: 5%;
     width: 5%;
     position: absolute;
