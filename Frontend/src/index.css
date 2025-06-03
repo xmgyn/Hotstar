@@ -142,6 +142,15 @@ div.Hero-Image-Heading {
   text-align: center;
 }
 
+div.Hero-Details {
+  display: flex;
+  height: 13%;
+  justify-content: space-between;
+  color: white;
+  z-index: 2;
+  font-size: 21px;
+}
+
 div.Interact {
   height: 20%;
   display: flex;
@@ -197,6 +206,7 @@ div.Horizontal-Card {
   width: 94vw;
   scrollbar-width: none;
   position: absolute;
+  scroll-behavior: smooth;
 
   .End-Card {
     margin-right: 4vw;
@@ -247,6 +257,32 @@ div.Preview-Card {
 
   img:first-child {
     display: none;
+  }
+}
+
+div.Preview-Trailer {
+  img:nth-child(2) {
+    display: none;
+  }
+
+  video {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+  }
+
+  div.Preview-Stop {
+    cursor: pointer;
+    position: absolute;
+    right: 6%;
+    top: 6%;
+    height: 20%;
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
   }
 }
 
@@ -439,6 +475,7 @@ div.Developer-Logs {
 
     td {
       padding: 15px;
+      overflow-wrap: break-word;
     }
   }
 }

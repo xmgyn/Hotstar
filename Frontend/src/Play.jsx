@@ -237,6 +237,7 @@ function Details({ Props }) {
 }
 
 function Play({ meta }) {
+  console.log("Play : ", meta)
     const { details } = useContext(DataContext);
 
     const [Play, setPlay] = useState(false);

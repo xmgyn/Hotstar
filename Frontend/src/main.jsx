@@ -29,13 +29,6 @@ function Main() {
   const [details, setDetails] = useState(null);
   const [meta, setMeta] = useState();
 
-  // All Query Selectors
-  const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
-  const iconImageContainer = document.querySelector('div.Title-Image');
-  const tagsContainer = document.querySelector('div.Hero-Tags');
-  const arrowLeft = document.querySelector('.Arrow-Left');
-  const arrowRight = document.querySelector('.Arrow-Right');
-
   useEffect(() => {
     const fetchData = async () => {
       setSplashNegative(false);
@@ -54,7 +47,7 @@ function Main() {
   return (
     <React.Fragment>
       <div style={{ display: play ? "none" : "block" }}>
-        <Home cardData={data} currentView={context} splashNegative={splashNegative} tab={tab} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative }} query={{}} />
+        <Home cardData={data} currentView={context} splashNegative={splashNegative} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating }} query={{}} />
       </div>
       {play && <Play key={context._id} meta={meta} />}
     </React.Fragment>
