@@ -1,36 +1,35 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { Fragment, useRef, useEffect, useState } from 'react';
+import { Icon as IconPack, Image as ImagePack } from "./Assets";
 
 function AudioSelect({ Props }) {
-    //Props.setAudio();
-    return (
-        <Fragment>
-            <div className="Window">
-                <div></div>
-                <div className="Audio-Select-Pane">
-                    {
-                        Props.details &&
-                        Props.details.audio_profiles.map(
-                            (item) => (
-                                <div className="Audio-Select-Item">
-                                    <input name="Audio-Select" type="radio" />
-                                    {item.name}
-                                </div>
-                            )
-                        )
-                    }
+  //Props.setAudio();
+  return (
+    <Fragment>
+      <div className="Window">
+        <div></div>
+        <div className="Audio-Select-Pane">
+          {
+            Props.details &&
+            Props.details.audio_profiles.map(
+              (item) => (
+                <div className="Audio-Select-Item">
+                  <input name="Audio-Select" type="radio" />
+                  {item.name}
                 </div>
-                <div></div>
-                <div className="Window-Close" onClick={() => Props.setShowAudioSelect(false)}><Close /></div>
-                <div></div>
-            </div>
-        </Fragment>
-    )
+              )
+            )
+          }
+        </div>
+        <div></div>
+        <div className="Window-Close" onClick={() => Props.setShowAudioSelect(false)}><Close /></div>
+        <div></div>
+      </div>
+    </Fragment>
+  )
 }
 
 
 function Controller({ Props }) {
-  const { setPlay } = useContext(DataContext);
-
   let controller;
   let video = Props.videoRef.current;
   let audio = Props.audioRef.current;
@@ -38,14 +37,14 @@ function Controller({ Props }) {
   const setPlayState = () => {
     if (!video) video = Props.videoRef.current;
     if (!audio) audio = Props.audioRef.current;
-    if (Props.Play) {
+    if (Props.PlayVideo) {
       video.pause();
       audio.pause();
     } else {
       video.play();
       audio.play();
     }
-    Props.setPlay(!Props.Play);
+    Props.setPlayVideo(!Props.PlayVideo);
   }
 
   const setSeekState = (seekAhead) => {
@@ -204,156 +203,168 @@ function Controller({ Props }) {
       </div>
       <div className="Controller-Bottom">
         <div className="Settings">
-          <div className="Settings-Audio-Button" onClick={() => Props.setShowAudioSelect(!Props.showAudioSelect)}><IconPack type="audio"/></div>
-          <div className="Settings-Subtitle-Button"><IconPack type="subtitle"/></div>
+          <div className="Settings-Audio-Button" onClick={() => Props.setShowAudioSelect(!Props.showAudioSelect)}><ImagePack type="audio" /></div>
+          <div className="Settings-Subtitle-Button"><ImagePack type="subtitle" /></div>
         </div>
         <div className="Controls">
-          <div className="Controls-Previous"><IconPack type="backward"/></div>
-          <div className="Controls-Seek-Back" onClick={() => setSeekState(0)}><IconPack type="previous"/></div>
-          {Props.Loading ? <div className="Controls-Seek-Loading"><IconPack type="loading"/></div> : <div className="Controls-Seek-Play" onClick={setPlayState}>{Props.Play ? <IconPack type="pause"/> : <IconPack type="play"/>}</div>}
-          <div className="Controls-Seek-Ahead" onClick={() => setSeekState(1)}><IconPack type="next"/></div>
-          <div className="Controls-Next"><IconPack type="forward"/></div>
+          <div className="Controls-Previous"><ImagePack type="backward" /></div>
+          <div className="Controls-Seek-Back" onClick={() => setSeekState(0)}><ImagePack type="previous" /></div>
+          {Props.Loading ? <div className="Controls-Seek-Loading"><ImagePack type="loading" /></div> : <div className="Controls-Seek-Play" onClick={setPlayState}>{Props.PlayVideo ? <ImagePack type="pause" /> : <ImagePack type="play" />}</div>}
+          <div className="Controls-Seek-Ahead" onClick={() => setSeekState(1)}><ImagePack type="next" /></div>
+          <div className="Controls-Next"><ImagePack type="forward" /></div>
         </div>
         <div className="Extra">
-          <div className="Extra-Info-Button" onClick={() => Props.setShowDetails(!Props.showDetails)}><IconPack type="info"/></div>
-          <div className="Extra-Close" onClick={() => setPlay(false)}><IconPack type="cross"/></div>
+          <div className="Extra-Info-Button" onClick={() => Props.setShowDetails(!Props.showDetails)}><ImagePack type="info" /></div>
+          <div className="Extra-Close" onClick={() => Props.setPlay(false)}><ImagePack type="cross" /></div>
         </div>
       </div>
     </div>
   )
 }
 
-function Details({ Props }) {
-    const { details } = useContext(DataContext);
+// function Details({ Props }) {
 
-    return (
-        <Fragment>
-            <div className="Window">
-                <div className="Details-Pane">{ JSON.stringify(details) ?? "We Dont Have Any" }</div>
-                <div className="Window-Close" onClick={() => Props.showDetails(false)}><Close /></div>
-            </div>
-        </Fragment>
-    )
+//   return (
+//     <Fragment>
+//       <div className="Window">
+//         <div className="Details-Pane">{JSON.stringify(details) ?? "We Dont Have Any"}</div>
+//         <div className="Window-Close" onClick={() => Props.showDetails(false)}><Close /></div>
+//       </div>
+//     </Fragment>
+//   )
+// }
+
+function Play({ meta, details, set: { setPlay } }) {
+  const [PlayVideo, setPlayVideo] = useState(false);
+  const [Loading, setLoading] = useState(true);
+  const [Audio, setAudio] = useState(details.audio_profiles[0].type);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showAudioSelect, setShowAudioSelect] = useState(false);
+
+  let Container, Player;
+
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const audio = audioRef.current;
+
+    let videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video`;
+    let audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}`;
+
+    if (meta.seriesid) {
+      videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
+      audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
+    }
+
+    Container = document.getElementById("Controller");
+    Player = document.getElementById("Player");
+
+    let readystate = 0;
+    let timeout;
+
+    document.addEventListener("mousemove", () => {
+      clearTimeout(timeout);
+      Container.style.opacity = 1;
+      Player.style.cursor = "default";
+      timeout = setTimeout(() => {
+        if (video.paused) return;
+        Container.style.opacity = 0;
+        Player.style.cursor = "none";
+      }, 3000);
+    });
+
+
+    if (Hls.isSupported()) {
+      const hlsVideo = new Hls();
+      hlsVideo.loadSource(videoSrc);
+      hlsVideo.attachMedia(video);
+
+      const hlsAudio = new Hls();
+      hlsAudio.loadSource(audioSrc);
+      hlsAudio.attachMedia(audio);
+
+      Promise.all([
+        new Promise((resolve) => hlsVideo.on(Hls.Events.MANIFEST_PARSED, resolve)),
+        new Promise((resolve) => hlsAudio.on(Hls.Events.MANIFEST_PARSED, resolve))
+      ]).then(() => {
+        setLoading(false);
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoSrc;
+      audio.src = audioSrc;
+      video.addEventListener('loadedmetadata', () => {
+        setLoading(false);
+      });
+      video.addEventListener('canplaythrough', () => {
+        setLoading(false);
+      });
+    }
+
+    video.addEventListener("playing", () => { document.getElementById("Controller").style.opacity = 1; setLoading(false) });
+    video.addEventListener("seeked", () => {
+      audio.currentTime = video.currentTime;
+      readystate++;
+      if (readystate > 1) {
+        setLoading(false);
+        audio.play();
+        video.play();
+      }
+    });
+    audio.addEventListener("seeked", () => {
+      readystate++;
+      if (readystate > 1) {
+        setLoading(false);
+        audio.play();
+        video.play();
+      }
+    });
+    video.addEventListener("waiting", () => { document.getElementById("Controller").style.opacity = 1; setLoading(true) });
+    video.addEventListener("seeking", () => {
+      setLoading(true);
+      audio.pause();
+      video.pause();
+      readystate = 0;
+    });
+    video.addEventListener("timeupdate", () => {
+      setCurrentTime(video.currentTime);
+    });
+
+    return () => {
+      if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.removeEventListener('loadedmetadata', () => setLoading(false));
+        video.removeEventListener('canplaythrough', () => setLoading(false));
+        video.removeEventListener('playing', () => setLoading(false));
+        video.removeEventListener('seeked', () => setLoading(false));
+        video.removeEventListener('waiting', () => setLoading(false));
+        video.removeEventListener('seeking', () => setLoading(false));
+      }
+
+      document.documentElement.style.setProperty("--seek-width", '0%');
+    };
+  }, [meta, Audio]);
+
+  return (
+    <div id="Player" className='Player'>
+      <div className="Play">
+        <video ref={videoRef} id="video" crossOrigin="anonymous"></video>
+        <audio ref={audioRef} id="audio" crossOrigin="anonymous"></audio>
+        <Controller Props={{ meta, Loading, PlayVideo, setPlayVideo, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
+      </div>
+      {(showDetails || showAudioSelect) &&
+        <div className="Overlay">
+          {/* {showDetails && <Details Props={{ setShowDetails }} />} */}
+          {showAudioSelect && <AudioSelect Props={{ details, setShowAudioSelect, setAudio }} />}
+        </div>}
+    </div>
+  );
 }
 
-function Play({ meta }) {
-  console.log("Play : ", meta)
-    const { details } = useContext(DataContext);
+export default Play;
 
-    const [Play, setPlay] = useState(false);
-    const [Loading, setLoading] = useState(true);
-    const [Audio, setAudio] = useState(details.audio_profiles[0].type);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [showDetails, setShowDetails] = useState(false);
-    const [showAudioSelect, setShowAudioSelect] = useState(false);
-
-    const videoRef = useRef(null);
-    const audioRef = useRef(null);
-
-    useEffect(() => {
-        const video = videoRef.current;
-        const audio = audioRef.current;
-
-        let videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video`;
-        let audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}`;
-
-        if (meta.seriesid) {
-            videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
-            audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
-        }
-
-        const Container = document.getElementById("Controller");
-        const Player = document.getElementById("Player");
-
-        let readystate = 0;
-        let timeout;
-
-        document.addEventListener("mousemove", () => {
-            clearTimeout(timeout); 
-            Container.style.opacity = 1; 
-            Player.style.cursor = "default";
-            timeout = setTimeout(() => {
-                if (video.paused) return;
-                Container.style.opacity = 0;
-                Player.style.cursor = "none";
-            }, 3000);
-        });
-
-
-        if (Hls.isSupported()) {
-            const hlsVideo = new Hls();
-            hlsVideo.loadSource(videoSrc);
-            hlsVideo.attachMedia(video);
-
-            const hlsAudio = new Hls();
-            hlsAudio.loadSource(audioSrc);
-            hlsAudio.attachMedia(audio);
-
-            Promise.all([
-                new Promise((resolve) => hlsVideo.on(Hls.Events.MANIFEST_PARSED, resolve)),
-                new Promise((resolve) => hlsAudio.on(Hls.Events.MANIFEST_PARSED, resolve))
-            ]).then(() => {
-                setLoading(false);
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = videoSrc;
-            audio.src = audioSrc;
-            video.addEventListener('loadedmetadata', () => {
-                setLoading(false);
-            });
-            video.addEventListener('canplaythrough', () => {
-                setLoading(false);
-            });
-        }
-
-        video.addEventListener("playing", () => { document.getElementById("Controller").style.opacity = 1; setLoading(false) });
-        video.addEventListener("seeked", () => {
-            audio.currentTime = video.currentTime;
-            readystate++;
-            if (readystate > 1) {
-                setLoading(false);
-                audio.play();
-                video.play();
-            }
-        });
-        audio.addEventListener("seeked", () => {
-            readystate++;
-            if (readystate > 1) {
-                setLoading(false);
-                audio.play();
-                video.play();
-            }
-        });
-        video.addEventListener("waiting", () => { document.getElementById("Controller").style.opacity = 1; setLoading(true) });
-        video.addEventListener("seeking", () => {
-            setLoading(true);
-            audio.pause();
-            video.pause();
-            readystate = 0;
-        });
-        video.addEventListener("timeupdate", () => {
-            setCurrentTime(video.currentTime);
-        });
-        
-        return () => {
-            if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.removeEventListener('loadedmetadata', () => setLoading(false));
-                video.removeEventListener('canplaythrough', () => setLoading(false));
-                video.removeEventListener('playing', () => setLoading(false));
-                video.removeEventListener('seeked', () => setLoading(false));
-                video.removeEventListener('waiting', () => setLoading(false));
-                video.removeEventListener('seeking', () => setLoading(false));
-            }
-
-            document.documentElement.style.setProperty("--seek-width", '0%');
-        };
-    }, [meta, Audio]);
-
-    return (
-        <div id="Player" className='Player'>
-            <div className="Play">
-                <video ref={videoRef} id="video" crossOrigin="anonymous">
-                    {/* <track
+{/* <track
                         id="subtitle"
                         kind="subtitles"
                         srclang="en"
@@ -361,18 +372,3 @@ function Play({ meta }) {
                         label="English"
                         default
                     /> */}
-                </video>
-                <audio ref={audioRef} id="audio" crossOrigin="anonymous">
-                </audio>
-                <Controller Props={{ meta, Loading, Play, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
-            </div>
-            {(showDetails || showAudioSelect) &&
-                <div className="Overlay">
-                    {showDetails && <Details Props={{ setShowDetails }} />}
-                    {showAudioSelect && <AudioSelect Props={{ details, setShowAudioSelect, setAudio }} />}
-                </div>}
-        </div>
-    );
-}
-
-export default Play;

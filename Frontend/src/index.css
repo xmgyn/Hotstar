@@ -36,7 +36,7 @@ div.Splash {
   }
 }
 
-.Splash-loader {
+.Splash-Loader {
   width: 48px;
   height: 48px;
   background: #fff;
@@ -45,7 +45,7 @@ div.Splash {
   animation: skLinRotate 1s ease-in-out infinite alternate;
 }
 
-.Splash-loader:after {
+.Splash-Loader:after {
   content: "";
   position: absolute;
   inset: 5px;

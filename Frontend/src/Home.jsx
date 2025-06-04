@@ -1,6 +1,6 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
-import { Icon } from "./Assets";
+import { Icon as IconPack, Image as ImagePack } from "./Assets";
 
 // Complete
 async function CardBlob(id) {
@@ -12,14 +12,10 @@ async function CardBlob(id) {
   };
 
   const fetchBlob = async (url) => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Failed to fetch ${url}`);
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
-    } catch (error) {
-      return null;
-    }
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
   };
 
   const blobs = await Promise.all(
@@ -29,19 +25,21 @@ async function CardBlob(id) {
   return Object.assign({}, ...blobs);
 }
 
+// Complete
 function Splash() {
   return (
     <Fragment>
       <div className="Splash">
         <div className="Splash-Element">
-          <img src="logo.png" />
-          <span class="Splash-loader"></span>
+          <ImagePack type={"logo"} />
+          <span class="Splash-Loader"></span>
         </div>
       </div>
     </Fragment>
   )
 }
 
+// Complete
 function Navbar({ changeTab }) {
   const shift = (event) => {
     const navActive = document.querySelector("div.Nav-Active");
@@ -62,6 +60,8 @@ function Navbar({ changeTab }) {
 }
 
 function Account({ rating, close, setRating }) {
+  const [inputValue, SetInputValue] = useState(rating);
+
   const LogsList = useRef(null);
 
   useEffect(function () {
@@ -87,16 +87,16 @@ function Account({ rating, close, setRating }) {
   }, [])
 
   return (
-    <React.Fragment>
+    <Fragment>
       <div className="Background-Image-Overlay Extra-Overlay">
-        <div onClick={close}>
-          <Icon type={"PopUpClose"} />
+        <div onClick={() => { setRating(inputValue); close(); }}>
+          <IconPack type={"PopUpClose"} />
         </div>
       </div>
       <div className="Developer-Settings Over-Block">
         <div className="Developer-Ping"></div>
         <div className="Developer-Code oxygen-regular">
-          <input value={rating} placeholder="Enter Developers Code" onChange={(e) => setRating(e.target.value)} />
+          <input value={inputValue} placeholder="Enter Developers Code" onChange={(e) => SetInputValue(e.target.value)} />
         </div>
         <div className="Developer-Details"></div>
         <div className="Developer-Logs">
@@ -112,11 +112,11 @@ function Account({ rating, close, setRating }) {
           </table>
         </div>
       </div>
-    </React.Fragment>
+    </Fragment>
   )
 }
 
-function Home({ cardData, currentView, rating, splashNegative, set, query }) {
+function Home({ cardData, currentView, rating, splashNegative, set }) {
   const [load, setLoad] = useState(false);
   const [accountSettings, setAccountSettings] = useState(false);
 
@@ -126,7 +126,6 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
 
   let cardContainer;
 
-  // All Query Selectors
   const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
   const iconImageContainer = document.querySelector('div.Title-Image');
   const tagsContainer = document.querySelector('div.Hero-Tags');
@@ -136,13 +135,13 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
   useEffect(() => {
     if (!cardData) return;
 
-    cardData = cardData.slice(0, 14);
+    cardData = cardData.slice(0, 2);
 
     const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          console.log("You Reacheed The End");
-        }
-      },
+      if (entries[0].isIntersecting) {
+        console.log("You Reacheed The End");
+      }
+    },
       { rootMargin: "100px" }
     );
 
@@ -387,8 +386,8 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
   }
 
   return (
-    <React.Fragment>
-      <React.Fragment>
+    <Fragment>
+      <Fragment>
         <div className="Background-Image-Container">
         </div>
         <div className="Background-Image-Overlay"></div>
@@ -406,30 +405,30 @@ function Home({ cardData, currentView, rating, splashNegative, set, query }) {
           <div className="Interact">
             <div>
               <div className="Hero-Play-Button" onClick={preparePlay}>
-                <Icon type={"WatchNow"} />
+                <IconPack type={"WatchNow"} />
                 <div className="oxygen-regular">Start Watching</div>
               </div>
             </div>
-            {currentView && <div className="Hero-Favourite" onClick={setFavourite}><Icon type={"Like"} fill={getFavourite(currentView)} /></div>}
+            {currentView && <div className="Hero-Favourite" onClick={setFavourite}><IconPack type={"Like"} fill={getFavourite(currentView)} /></div>}
           </div>
         </div>
         <div className="Play-List">
           <div className="Card-Heading">
             <div className="Text-Heading oxygen-bold">Collections</div>
             <div className="Navigate">
-              <div className="Arrow-Left" onClick={() => scroll()}><Icon type={"Left"} /></div>
-              <div className="Arrow-Right" onClick={scroll}><Icon type={"Left"} /></div>
-              <div className="Profile" onClick={() => setAccountSettings(true)}>{rating === '18203' ? <img src="IMG_2785.JPG" /> : <img src="IMG_2784.JPG" />}</div>
+              <div className="Arrow-Left" onClick={() => scroll()}><IconPack type={"Left"} /></div>
+              <div className="Arrow-Right" onClick={scroll}><IconPack type={"Left"} /></div>
+              <div className="Profile" onClick={() => setAccountSettings(true)}>{rating === '18203' ? <ImagePack type="profile_rated" /> : <img src="IMG_2784.JPG" />}</div>
             </div>
           </div>
           <div ref={horizontalCard} className="Horizontal-Card">
           </div>
         </div>
-      </React.Fragment>
-      {splashNegative ? <React.Fragment /> : <Splash />}
+      </Fragment>
+      {splashNegative ? <Fragment /> : <Splash />}
       {/* <div ref={playItemList} className="Play-Item-List Over-Block" />  */}
       {accountSettings && <Account rating={rating} setRating={set.setRating} close={() => setAccountSettings(false)} />}
-    </React.Fragment>
+    </Fragment>
   )
 }
 

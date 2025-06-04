@@ -21,7 +21,7 @@ function Main() {
   // Home Page
   const [splashNegative, setSplashNegative] = useState(false);
   const [context, setContext] = useState(null);
-  const [rating, setRating] = useState('');  // 18203
+  const [rating, setRating] = useState('');  
   const [tab, setTab] = useState("Home");
 
   // Player Page
@@ -31,6 +31,7 @@ function Main() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (rating !== '' && rating !== '18203') return;
       setSplashNegative(false);
       try {
         const response = await fetch(`http://192.168.0.110:4373/getCollections/${(tab != "Home") ? tab : "All"}${(rating) ? '?rating=' + rating : ''}`);
@@ -42,14 +43,14 @@ function Main() {
       }
     };
     fetchData();
-  }, [tab]);
+  }, [tab,rating]);
 
   return (
     <React.Fragment>
       <div style={{ display: play ? "none" : "block" }}>
-        <Home cardData={data} currentView={context} splashNegative={splashNegative} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating }} query={{}} />
+        <Home cardData={data} currentView={context} splashNegative={splashNegative} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating }} />
       </div>
-      {play && <Play key={context._id} meta={meta} />}
+      {play && <Play key={context._id} meta={meta} details={details} set={{ setPlay }} />}
     </React.Fragment>
   )
 }
