@@ -1,11 +1,11 @@
-import { StrictMode, useState } from 'react'
-import React, { useEffect, useRef } from "react";
-import { createRoot } from 'react-dom/client'
+import { StrictMode, useState } from 'react';
+import { Fragment, useEffect, useRef } from "react";
+import { createRoot } from 'react-dom/client';
 
-import Home from './Home'
-import Play from './Play'
+import Home from './Home';
+import Play from './Play';
 
-import './index.css'
+import './index.css';
 
 function Message(type, msg) {
   return (
@@ -46,12 +46,12 @@ function Main() {
   }, [tab,rating]);
 
   return (
-    <React.Fragment>
+    <Fragment>
       <div style={{ display: play ? "none" : "block" }}>
-        <Home cardData={data} currentView={context} splashNegative={splashNegative} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating }} />
+        <Home cardData={data} currentView={context} splashNegative={splashNegative} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating, setMessage }} />
       </div>
       {play && <Play key={context._id} meta={meta} details={details} set={{ setPlay }} />}
-    </React.Fragment>
+    </Fragment>
   )
 }
 

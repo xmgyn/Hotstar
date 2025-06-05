@@ -119,12 +119,14 @@ function Account({ rating, close, setRating }) {
 function Home({ cardData, currentView, rating, splashNegative, set }) {
   const [load, setLoad] = useState(false);
   const [accountSettings, setAccountSettings] = useState(false);
+  const [playListItemShow, setPlayListItemShow] = useState(false);
 
   const horizontalCard = useRef(null);
   const playItemList = useRef(null);
   const lastCardRef = useRef(null);
 
   let cardContainer;
+  let fetchController;
 
   const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
   const iconImageContainer = document.querySelector('div.Title-Image');
@@ -153,7 +155,6 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
             const blob = await CardBlob(item._id);
             Object.assign(cardData[index], blob);
           } catch (error) {
-            console.error(`Failed to fetch blob for ${item._id}:`, error);
             Object.assign(cardData[index], { cardImg: null, iconImg: null, previewImg: null, backgroundImg: null });
           }
         })
@@ -206,7 +207,6 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       // Turn Off The Spinner
     }
     LoadCard();
-    // LoadCards Should Perform Pagination Of Data, Also Discard If Insufficient Data
 
     return () => {
       // Clean The Cards
@@ -217,6 +217,7 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
 
   }, [cardData]);
 
+  // Completed
   function CardSelect(content) {
     const prevSelect = document.querySelector('div.Preview-Card');
     if (prevSelect) {
@@ -224,6 +225,10 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       prevSelect.classList.remove('Preview-Card');
       while (prevSelect.children.length > 1) prevSelect.removeChild(prevSelect.children[1]);
     }
+
+    if (fetchController) fetchController.abort();
+    fetchController = new AbortController();
+    const { signal } = fetchController;
 
     const trailerView = document.querySelector('div.Preview-Trailer');
     if (trailerView) trailerView.classList.remove('Preview-Trailer');
@@ -271,7 +276,7 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       tagsContainer.appendChild(tagElement);
     });
 
-    fetch(`http://192.168.0.110:4373/getTrailer/${content._id}`).then(data => {
+    fetch(`http://192.168.0.110:4373/getTrailer/${content._id}`, { signal }).then(data => {
       if (data.status === 200) return data.blob();
       else return;
     }).then(response => {
@@ -281,7 +286,36 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       cardContainer.classList.add('Preview-Trailer');
       const stopPreview = document.createElement("div");
       stopPreview.classList.add('Preview-Stop');
-      stopPreview.innerHTML = '<svg fill="#FFFFFF" width="187px" height="187px" viewBox="-5.6 -5.6 67.20 67.20" xmlns="http://www.w3.org/2000/svg" stroke="#FFFFFF"><g id="SVGRepo_bgCarrier" stroke-width="0"><rect x="-5.6" y="-5.6" width="67.20" height="67.20" rx="33.6" fill="#ff0068" strokewidth="0"></rect></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0312 4.0937 27.9765 4.0937 C 14.8983 4.0937 4.0937 14.9453 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 27.9999 47.9219 C 16.9374 47.9219 8.1014 39.0625 8.1014 28 C 8.1014 16.9609 16.9140 8.0781 27.9765 8.0781 C 39.0155 8.0781 47.8983 16.9609 47.9219 28 C 47.9454 39.0625 39.0390 47.9219 27.9999 47.9219 Z M 19.7265 34.0469 C 19.7265 35.4531 20.5702 36.2968 21.9999 36.2968 L 33.9999 36.2968 C 35.4062 36.2968 36.2733 35.4531 36.2733 34.0469 L 36.2733 21.9531 C 36.2733 20.5703 35.4062 19.7266 33.9999 19.7266 L 21.9999 19.7266 C 20.5702 19.7266 19.7265 20.5703 19.7265 21.9531 Z"></path></g></svg>';
+      const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgElement.setAttribute("fill", "#FFFFFF");
+      svgElement.setAttribute("width", "187px");
+      svgElement.setAttribute("height", "187px");
+      svgElement.setAttribute("viewBox", "-5.6 -5.6 67.20 67.20");
+      svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      svgElement.setAttribute("stroke", "#FFFFFF");
+      const bgCarrier = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      bgCarrier.setAttribute("id", "SVGRepo_bgCarrier");
+      bgCarrier.setAttribute("stroke-width", "0");
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", "-5.6");
+      rect.setAttribute("y", "-5.6");
+      rect.setAttribute("width", "67.20");
+      rect.setAttribute("height", "67.20");
+      rect.setAttribute("rx", "33.6");
+      rect.setAttribute("fill", "#ff0068");
+      rect.setAttribute("stroke-width", "0");
+      bgCarrier.appendChild(rect);
+      const iconCarrier = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      iconCarrier.setAttribute("id", "SVGRepo_iconCarrier");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute(
+        "d",
+        "M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0312 4.0937 27.9765 4.0937 C 14.8983 4.0937 4.0937 14.9453 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 27.9999 47.9219 C 16.9374 47.9219 8.1014 39.0625 8.1014 28 C 8.1014 16.9609 16.9140 8.0781 27.9765 8.0781 C 39.0155 8.0781 47.8983 16.9609 47.9219 28 C 47.9454 39.0625 39.0390 47.9219 27.9999 47.9219 Z M 19.7265 34.0469 C 19.7265 35.4531 20.5702 36.2968 21.9999 36.2968 L 33.9999 36.2968 C 35.4062 36.2968 36.2733 35.4531 36.2733 34.0469 L 36.2733 21.9531 C 36.2733 20.5703 35.4062 19.7266 33.9999 19.7266 L 21.9999 19.7266 C 20.5702 19.7266 19.7265 20.5703 19.7265 21.9531 Z"
+      );
+      iconCarrier.appendChild(path);
+      svgElement.appendChild(bgCarrier);
+      svgElement.appendChild(iconCarrier);
+      stopPreview.appendChild(svgElement);
       cardContainer.appendChild(trailerVideo);
       cardContainer.appendChild(stopPreview);
       trailerVideo.oncanplay = () => {
@@ -290,6 +324,7 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       const endTrailer = (event) => {
         if (event) event.stopPropagation();
         trailerVideo.pause();
+        URL.revokeObjectURL(trailerVideo.src);
         trailerVideo.src = "";
         trailerVideo.remove();
         cardContainer.classList.remove("Preview-Trailer");
@@ -303,13 +338,18 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
     set.setContext(content);
   }
 
+  // Completed
   function setFavourite() {
     fetch(`http://192.168.0.110:4373/setFavourite/${currentView._id}`).then(data => {
-      if (data.status === 200) set.setContext({ ...currentView, Favourite: !currentView.Favourite });
-      else throw new Error("Something Went Wrong");
-    }).catch(error => { console.error("Failed to set favourite:", error) })
+      if (data.status === 200) {
+        set.setContext({ ...currentView, Favourite: !currentView.Favourite });
+        set.setMessage({ type: "success", message: `You Liked ${currentView.Name}` })
+      }
+      else throw new Error("Server Did Not Accept Your Request");
+    }).catch(error => { set.setMessage({ type: "error", message: `Setting Favourite Failed : ${error}` }) })
   }
 
+  // Completed
   function getFavourite() {
     return currentView.Favourite ? "#fb0505" : "#00000000";
   }
@@ -376,6 +416,7 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       })
   }
 
+  // Completed
   function scroll(direction) {
     if (direction && horizontalCard.current) {
       horizontalCard.current.scrollLeft += 200;
@@ -426,7 +467,7 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
         </div>
       </Fragment>
       {splashNegative ? <Fragment /> : <Splash />}
-      {/* <div ref={playItemList} className="Play-Item-List Over-Block" />  */}
+      {playListItemShow && <div ref={playItemList} className="Play-Item-List Over-Block" />}
       {accountSettings && <Account rating={rating} setRating={set.setRating} close={() => setAccountSettings(false)} />}
     </Fragment>
   )
