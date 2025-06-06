@@ -32,7 +32,7 @@ function Splash() {
       <div className="Splash">
         <div className="Splash-Element">
           <ImagePack type={"logo"} />
-          <span class="Splash-Loader"></span>
+          <span className="Splash-Loader"></span>
         </div>
       </div>
     </Fragment>
@@ -122,42 +122,46 @@ function Account({ rating, close, setRating }) {
 }
 
 function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
-  if (!cardData) return;
-
-  const [load, setLoad] = useState(false);
   const [accountSettings, setAccountSettings] = useState(false);
   const [playListItemShow, setPlayListItemShow] = useState(false);
-  const [paginationRefresh, setPaginationRefresh] = useState(false);
-  const [paginatedData, setPaginatedData] = useState(cardData.slice(0, 10));
+  const [pagination, setPagination] = useState(null);
+  const [firstRun, setFirstRun] = useState(false);
+  const [paginatedData, setPaginatedData] = useState(null);
   const horizontalCard = useRef(null);
   const playItemList = useRef(null);
   const lastCardRef = useRef(null);
 
   let cardContainer;
   let fetchController;
-  let backgroundImageContainer;
-  let iconImageContainer;
-  let tagsContainer;
-  let year;
-  let duration;
-
 
   useEffect(() => {
     if (!cardData) return;
-    //if (!paginationRefresh) setPaginatedData();
-    console.log(paginatedData)
-    console.log(paginationRefresh)
+    setFirstRun(false);
+    console.log("Carddata : " + firstRun);
+    setPagination({ startIndex: 0, lastIndex: (cardData.length < 8) ? cardData.length : 8 });
+  }, [cardData])
 
+  useEffect(() => {
+    if (!cardData) return;
+    setPaginatedData(cardData.slice(pagination.startIndex, pagination.lastIndex));
+    console.log(pagination.startIndex + " " + pagination.lastIndex);
+  }, [pagination])
+
+  useEffect(() => {
+    if (!paginatedData) return;
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    console.log("Paginate data : " + firstRun);
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        console.log("We Reach End")
-        setPaginatedData(cardData.slice(10, 20))
+        setPagination({ startIndex: pagination.lastIndex, lastIndex: (cardData.length < pagination.lastIndex + 5) ? cardData.length : pagination.lastIndex + 5 });
       }
     },
       { rootMargin: "100px" }
     );
 
     async function LoadCard() {
+      if (signal.aborted) return;
       // Fetch All Image And Prepare Blob URLs
       await Promise.all(
         paginatedData.map(async (item, index) => {
@@ -169,7 +173,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
           }
         })
       );
-
+      if (signal.aborted) return;
       // Prepare The Cards
       const horizontalCardElements = [];
       const imageElements = paginatedData.map((item) => {
@@ -196,34 +200,66 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
           })
         )
       );
-
+      if (signal.aborted) return;
       if (horizontalCard.current) {
-        if (!paginationRefresh) horizontalCard.current.innerHTML = "";
+        if (!firstRun) horizontalCard.current.innerHTML = "";
+        else {
+          horizontalCard.current.lastChild.remove();
+        }
         horizontalCardElements.forEach(card => horizontalCard.current.appendChild(card));
-        const lastCard = document.createElement("div");
-        lastCard.classList.add('More-Fetch');
-        lastCard.innerHTML = '<span class="Splash-Loader"></span>';
-        horizontalCard.current.appendChild(lastCard);
-        lastCardRef.current = lastCard;
-        observer.observe(lastCardRef.current);
-        if (!paginationRefresh) CardSelect(paginatedData[0]);
-      }
+        if (pagination.lastIndex < cardData.length) {
+          const lastCard = document.createElement("div");
+          lastCard.classList.add('More-Fetch');
+          lastCard.innerHTML = '<span class="Card-Loader"></span>';
+          horizontalCard.current.appendChild(lastCard);
+          lastCardRef.current = lastCard;
+          observer.observe(lastCardRef.current);
+        } else {
+          horizontalCard.current.lastChild.classList.add('End-Card');
+        }
 
-      if (!paginationRefresh) {
+        if (!firstRun) CardSelect(paginatedData[0]);
+      }
+      if (signal.aborted) return;
+      if (!firstRun) {
         document.title = `${tab} | Hotstar`;
         set.setSplashNegative(true);
       }
-
-      setPaginationRefresh(true);
-      // Turn Off The Spinner
+      setFirstRun(true);
     }
     LoadCard();
 
     return () => {
-      // Clean The Cards
-      // URL.revokeObjectURL(images.icon);
-      // URL.revokeObjectURL(images.background);
-      // if (lastCardRef.current) observer.unobserve(lastCardRef.current);
+      // abortController.abort();
+
+      // Stop Intersection Observer
+    //   if (lastCardRef.current) {
+    //     observer.unobserve(lastCardRef.current);
+    //     lastCardRef.current.remove();
+    //     lastCardRef.current = null;
+    //   }
+
+    //   // Cleanup Fetch Requests
+    //   if (fetchController) {
+    //     fetchController.abort();
+    //     fetchController = null;
+    //   }
+
+    //   // Cleanup Object URLs for images
+    //   paginatedData.forEach((item) => {
+    //     if (item.cardImg) URL.revokeObjectURL(item.cardImg);
+    //     if (item.iconImg) URL.revokeObjectURL(item.iconImg);
+    //     if (item.previewImg) URL.revokeObjectURL(item.previewImg);
+    //     if (item.backgroundImg) URL.revokeObjectURL(item.backgroundImg);
+    //   });
+
+    //   // Remove dynamically added cards
+    //   if (horizontalCard.current) {
+    //     horizontalCard.current.innerHTML = "";
+    //   }
+
+    //   // Reset FirstRun State
+    //   setFirstRun(false);
     };
 
   }, [paginatedData]);
@@ -251,13 +287,12 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
     cardContainer.classList.add('Preview-Card');
     cardContainer.appendChild(previewImage);
 
-    if (!paginationRefresh) {
-      backgroundImageContainer = document.querySelector('div.Background-Image-Container');
-      iconImageContainer = document.querySelector('div.Title-Image');
-      tagsContainer = document.querySelector('div.Hero-Tags');
-      year = document.querySelector('div.Release-Year');
-      duration = document.querySelector('div.Release-Duration');
-    }
+    const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
+    const iconImageContainer = document.querySelector('div.Title-Image');
+    const tagsContainer = document.querySelector('div.Hero-Tags');
+    const year = document.querySelector('div.Release-Year');
+    const duration = document.querySelector('div.Release-Duration');
+
     backgroundImageContainer.innerHTML = '';
     const backgroundImage = document.createElement("img");
     backgroundImage.classList.add('Background-Image');
