@@ -333,7 +333,7 @@ div.More-Fetch {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0vw 2vw; 
+  padding: 0vw 2vw;
   height: 30vh;
   width: 10vw;
 }
@@ -465,25 +465,50 @@ div.Developer-Settings {
   height: 50%;
   display: grid;
   grid-template-columns: 40% 60%;
-  grid-template-rows: 20% 80%;
+  grid-template-rows: 70% 30%;
 }
 
-div.Developer-Code {
+div.Hoster-Details {
+  grid-column: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 90%;
+  height: 85%;
+  background: rgb(255 255 255);
+  border-radius: 20px;
+  justify-self: center;
+  align-self: center;
+  flex-direction: column;
 
-  input {
-    width: 90%;
+  div.Hoster-Image {
     height: 50%;
-    border-radius: 10px;
-    border: none;
-    color: #ffffff;
-    padding: 0.5rem;
-    font-size: 20px;
-    background: #969794;
+
+    img {
+      height: 100%;
+    }
+  }
+
+  div.Hoster-Code {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    input {
+      width: 90%;
+      height: 50%;
+      border-radius: 10px;
+      border: none;
+      color: #ffffff;
+      padding: 0.5rem;
+      font-size: 20px;
+      background: #969794;
+    }
   }
 }
+
+div.Developer-Server {
+  grid-column: 1;
+}
+
 
 div.Developer-Logs {
   display: flex;
@@ -491,6 +516,8 @@ div.Developer-Logs {
   align-items: center;
   color: white;
   overflow: hidden;
+  grid-row: 1 / 3;
+  grid-column: 2;
 
   table.Logs-Table {
     height: 90%;

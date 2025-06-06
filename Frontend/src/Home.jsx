@@ -45,7 +45,7 @@ function Navbar({ changeTab }) {
     const navActive = document.querySelector("div.Nav-Active");
     if (navActive) navActive.classList.remove('Nav-Active');
     event.target.classList.add('Nav-Active');
-    document.title = event.target.firstChild.data + ' | Hotstar';
+    document.title = 'Hotstar';
     changeTab(event.target.firstChild.data);
   }
 
@@ -94,11 +94,16 @@ function Account({ rating, close, setRating }) {
         </div>
       </div>
       <div className="Developer-Settings Over-Block">
-        <div className="Developer-Ping"></div>
-        <div className="Developer-Code oxygen-regular">
-          <input value={inputValue} placeholder="Enter Developers Code" onChange={(e) => SetInputValue(e.target.value)} />
+        <div className="Hoster-Details">
+          <div className="Hoster-Image"><ImagePack type="profile_rated" /></div>
+          <div className="Hoster-Name oxygen-regular">Axon-9</div>
+          <div className="Hoster-Detail oxygen-regular">24 Movies + 3 Series</div>
+          <div className="Hoster-Code oxygen-regular">
+            <input value={inputValue} placeholder="Enter Developers Code" onChange={(e) => SetInputValue(e.target.value)} />
+          </div>
         </div>
-        <div className="Developer-Details"></div>
+
+        <div className="Developer-Server"></div>
         <div className="Developer-Logs">
           <table className="Logs-Table">
             <thead>
@@ -116,32 +121,37 @@ function Account({ rating, close, setRating }) {
   )
 }
 
-function Home({ cardData, currentView, rating, splashNegative, set }) {
+function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
+  if (!cardData) return;
+
   const [load, setLoad] = useState(false);
   const [accountSettings, setAccountSettings] = useState(false);
   const [playListItemShow, setPlayListItemShow] = useState(false);
-
+  const [paginationRefresh, setPaginationRefresh] = useState(false);
+  const [paginatedData, setPaginatedData] = useState(cardData.slice(0, 10));
   const horizontalCard = useRef(null);
   const playItemList = useRef(null);
   const lastCardRef = useRef(null);
 
   let cardContainer;
   let fetchController;
+  let backgroundImageContainer;
+  let iconImageContainer;
+  let tagsContainer;
+  let year;
+  let duration;
 
-  const backgroundImageContainer = document.querySelector('div.Background-Image-Container');
-  const iconImageContainer = document.querySelector('div.Title-Image');
-  const tagsContainer = document.querySelector('div.Hero-Tags');
-  const year = document.querySelector('div.Release-Year');
-  const duration = document.querySelector('div.Release-Duration');
 
   useEffect(() => {
     if (!cardData) return;
-
-    cardData = cardData.slice(0, 2);
+    //if (!paginationRefresh) setPaginatedData();
+    console.log(paginatedData)
+    console.log(paginationRefresh)
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        console.log("You Reacheed The End");
+        console.log("We Reach End")
+        setPaginatedData(cardData.slice(10, 20))
       }
     },
       { rootMargin: "100px" }
@@ -150,19 +160,19 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
     async function LoadCard() {
       // Fetch All Image And Prepare Blob URLs
       await Promise.all(
-        cardData.map(async (item, index) => {
+        paginatedData.map(async (item, index) => {
           try {
             const blob = await CardBlob(item._id);
-            Object.assign(cardData[index], blob);
+            Object.assign(paginatedData[index], blob);
           } catch (error) {
-            Object.assign(cardData[index], { cardImg: null, iconImg: null, previewImg: null, backgroundImg: null });
+            Object.assign(paginatedData[index], { cardImg: null, iconImg: null, previewImg: null, backgroundImg: null });
           }
         })
       );
 
       // Prepare The Cards
       const horizontalCardElements = [];
-      const imageElements = cardData.map((item) => {
+      const imageElements = paginatedData.map((item) => {
         const cardDiv = document.createElement("div");
         const img = document.createElement("img");
         cardDiv.className = "Card";
@@ -187,23 +197,24 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
         )
       );
 
-      // Keep The Spinner On
-
       if (horizontalCard.current) {
-        horizontalCard.current.innerHTML = "";
+        if (!paginationRefresh) horizontalCard.current.innerHTML = "";
         horizontalCardElements.forEach(card => horizontalCard.current.appendChild(card));
         const lastCard = document.createElement("div");
         lastCard.classList.add('More-Fetch');
-        lastCard.innerHTML = '<span class="Splash-loader"></span>';
+        lastCard.innerHTML = '<span class="Splash-Loader"></span>';
         horizontalCard.current.appendChild(lastCard);
         lastCardRef.current = lastCard;
         observer.observe(lastCardRef.current);
-        CardSelect(cardData[0]);
+        if (!paginationRefresh) CardSelect(paginatedData[0]);
       }
 
-      document.title = 'Home | Hotstar';
+      if (!paginationRefresh) {
+        document.title = `${tab} | Hotstar`;
+        set.setSplashNegative(true);
+      }
 
-      set.setSplashNegative(true);
+      setPaginationRefresh(true);
       // Turn Off The Spinner
     }
     LoadCard();
@@ -215,7 +226,7 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
       // if (lastCardRef.current) observer.unobserve(lastCardRef.current);
     };
 
-  }, [cardData]);
+  }, [paginatedData]);
 
   // Completed
   function CardSelect(content) {
@@ -240,6 +251,13 @@ function Home({ cardData, currentView, rating, splashNegative, set }) {
     cardContainer.classList.add('Preview-Card');
     cardContainer.appendChild(previewImage);
 
+    if (!paginationRefresh) {
+      backgroundImageContainer = document.querySelector('div.Background-Image-Container');
+      iconImageContainer = document.querySelector('div.Title-Image');
+      tagsContainer = document.querySelector('div.Hero-Tags');
+      year = document.querySelector('div.Release-Year');
+      duration = document.querySelector('div.Release-Duration');
+    }
     backgroundImageContainer.innerHTML = '';
     const backgroundImage = document.createElement("img");
     backgroundImage.classList.add('Background-Image');

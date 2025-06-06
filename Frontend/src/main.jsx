@@ -48,7 +48,7 @@ function Main() {
   return (
     <Fragment>
       <div style={{ display: play ? "none" : "block" }}>
-        <Home cardData={data} currentView={context} splashNegative={splashNegative} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating, setMessage }} />
+        <Home cardData={data} currentView={context} splashNegative={splashNegative} tab={tab} rating={rating} set={{ setContext, setPlay, setTab, setMeta, setDetails, setSplashNegative, setRating, setMessage }} />
       </div>
       {play && <Play key={context._id} meta={meta} details={details} set={{ setPlay }} />}
     </Fragment>
