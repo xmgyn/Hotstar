@@ -137,6 +137,27 @@ function Controller({ Props }) {
       }, { once: true });
     })
 
+    // Drag The Slider For Touch Devices
+    seekbarCircle.addEventListener("touchstart", (event) => {
+      const updateProgress = (e) => {
+        const rect = seekbar.getBoundingClientRect();
+        let touch = e.touches[0]; // Get the first touch point
+        let percentage = ((touch.clientX - rect.left) / rect.width) * 100;
+        let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage)));
+        document.documentElement.style.setProperty("--seek-width", percentageFloor + '%');
+        const time = (percentage * video.duration) / 100;
+        video.currentTime = time;
+        audio.currentTime = video.currentTime;
+      };
+
+      document.addEventListener("touchmove", updateProgress);
+      document.addEventListener("touchend", () => {
+        document.removeEventListener("touchmove", updateProgress);
+        document.removeEventListener("touchend", arguments.callee);
+      }, { once: true });
+    });
+
+
     // Random Click On Seekbar
     seekbar.addEventListener("click", (event) => {
       const rect = seekbar.getBoundingClientRect();
@@ -203,8 +224,9 @@ function Controller({ Props }) {
       </div>
       <div className="Controller-Bottom">
         <div className="Settings">
-          <div className="Settings-Audio-Button" onClick={() => Props.setShowAudioSelect(!Props.showAudioSelect)}><ImagePack type="audio" /></div>
-          <div className="Settings-Subtitle-Button"><ImagePack type="subtitle" /></div>
+          {Props.details.audio_profiles.length > 1 ? <div className="Settings-Audio-Button" onClick={() => Props.setShowAudioSelect(!Props.showAudioSelect)}><ImagePack type="audio" /></div> : <div className="Settings-Audio-Button Settings-Greyed"><ImagePack type="audio_disabled" /></div>}
+          {Props.details.subtitle ? <div className="Settings-Subtitle-Button"><ImagePack type="subtitle" /></div> : <div className="Settings-Subtitle-Button Settings-Greyed"><ImagePack type="subtitle_disabled" /></div>}
+
         </div>
         <div className="Controls">
           <div className="Controls-Previous"><ImagePack type="backward" /></div>
@@ -235,6 +257,7 @@ function Controller({ Props }) {
 // }
 
 function Play({ meta, details, set: { setPlay } }) {
+  console.log(details)
   const [PlayVideo, setPlayVideo] = useState(false);
   const [Loading, setLoading] = useState(true);
   const [Audio, setAudio] = useState(details.audio_profiles[0].type);
@@ -309,6 +332,8 @@ function Play({ meta, details, set: { setPlay } }) {
       readystate++;
       if (readystate > 1) {
         setLoading(false);
+        console.log(video.paused)
+        if (video.paused) return;
         audio.play();
         video.play();
       }
@@ -317,6 +342,7 @@ function Play({ meta, details, set: { setPlay } }) {
       readystate++;
       if (readystate > 1) {
         setLoading(false);
+        if (video.paused) return;
         audio.play();
         video.play();
       }
@@ -351,7 +377,7 @@ function Play({ meta, details, set: { setPlay } }) {
       <div className="Play">
         <video ref={videoRef} id="video" crossOrigin="anonymous"></video>
         <audio ref={audioRef} id="audio" crossOrigin="anonymous"></audio>
-        <Controller Props={{ meta, Loading, PlayVideo, setPlayVideo, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
+        <Controller Props={{ meta, details, Loading, PlayVideo, setPlayVideo, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
       </div>
       {(showDetails || showAudioSelect) &&
         <div className="Overlay">

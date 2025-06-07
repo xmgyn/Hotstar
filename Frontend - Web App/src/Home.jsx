@@ -132,7 +132,8 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
   const lastCardRef = useRef(null);
 
   let cardContainer;
-  let fetchController;
+
+  const fetchControllerRef = useRef(new AbortController());
 
   useEffect(() => {
     if (!cardData) return;
@@ -233,33 +234,33 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
       // abortController.abort();
 
       // Stop Intersection Observer
-    //   if (lastCardRef.current) {
-    //     observer.unobserve(lastCardRef.current);
-    //     lastCardRef.current.remove();
-    //     lastCardRef.current = null;
-    //   }
+      //   if (lastCardRef.current) {
+      //     observer.unobserve(lastCardRef.current);
+      //     lastCardRef.current.remove();
+      //     lastCardRef.current = null;
+      //   }
 
-    //   // Cleanup Fetch Requests
-    //   if (fetchController) {
-    //     fetchController.abort();
-    //     fetchController = null;
-    //   }
+      //   // Cleanup Fetch Requests
+      //   if (fetchController) {
+      //     fetchController.abort();
+      //     fetchController = null;
+      //   }
 
-    //   // Cleanup Object URLs for images
-    //   paginatedData.forEach((item) => {
-    //     if (item.cardImg) URL.revokeObjectURL(item.cardImg);
-    //     if (item.iconImg) URL.revokeObjectURL(item.iconImg);
-    //     if (item.previewImg) URL.revokeObjectURL(item.previewImg);
-    //     if (item.backgroundImg) URL.revokeObjectURL(item.backgroundImg);
-    //   });
+      //   // Cleanup Object URLs for images
+      //   paginatedData.forEach((item) => {
+      //     if (item.cardImg) URL.revokeObjectURL(item.cardImg);
+      //     if (item.iconImg) URL.revokeObjectURL(item.iconImg);
+      //     if (item.previewImg) URL.revokeObjectURL(item.previewImg);
+      //     if (item.backgroundImg) URL.revokeObjectURL(item.backgroundImg);
+      //   });
 
-    //   // Remove dynamically added cards
-    //   if (horizontalCard.current) {
-    //     horizontalCard.current.innerHTML = "";
-    //   }
+      //   // Remove dynamically added cards
+      //   if (horizontalCard.current) {
+      //     horizontalCard.current.innerHTML = "";
+      //   }
 
-    //   // Reset FirstRun State
-    //   setFirstRun(false);
+      //   // Reset FirstRun State
+      //   setFirstRun(false);
     };
 
   }, [paginatedData]);
@@ -273,9 +274,9 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
       while (prevSelect.children.length > 1) prevSelect.removeChild(prevSelect.children[1]);
     }
 
-    if (fetchController) fetchController.abort();
-    fetchController = new AbortController();
-    const { signal } = fetchController;
+    if (fetchControllerRef.current) fetchControllerRef.current.abort();
+    fetchControllerRef.current = new AbortController();  
+    const { signal } = fetchControllerRef.current;
 
     const trailerView = document.querySelector('div.Preview-Trailer');
     if (trailerView) trailerView.classList.remove('Preview-Trailer');
@@ -333,7 +334,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
       if (data.status === 200) return data.blob();
       else return;
     }).then(response => {
-      if (!response) return;
+      if (!response || signal.aborted) return;
       const trailerVideo = document.createElement("video");
       trailerVideo.src = URL.createObjectURL(response);
       cardContainer.classList.add('Preview-Trailer');
@@ -369,6 +370,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
       svgElement.appendChild(bgCarrier);
       svgElement.appendChild(iconCarrier);
       stopPreview.appendChild(svgElement);
+      if (signal.aborted) return;
       cardContainer.appendChild(trailerVideo);
       cardContainer.appendChild(stopPreview);
       trailerVideo.oncanplay = () => {
@@ -408,6 +410,23 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
   }
 
   function preparePlay() {
+    if (fetchControllerRef.current) fetchControllerRef.current.abort();
+    const trailerVideo = document.querySelector('div.Preview-Trailer video');
+    const stopPreview = document.querySelector('div.Preview-Stop');
+    cardContainer = document.querySelector('div.Preview-Card');
+    if (trailerVideo) {
+      trailerVideo.pause();
+      URL.revokeObjectURL(trailerVideo.src);
+      trailerVideo.src = "";
+      trailerVideo.remove();
+    }
+    if (stopPreview) {
+      stopPreview.remove();
+    }
+
+    cardContainer.classList.remove("Preview-Trailer");
+
+
     if (currentView.Seasons) {
       if (playItemList.current) {
         playItemList.current.innerHTML = "";
