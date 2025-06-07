@@ -19,7 +19,7 @@ function Main() {
   const [message, setMessage] = useState(null);
 
   // Home Page
-  const [splashNegative, setSplashNegative] = useState(false);
+  const [splashNegative, setSplashNegative] = useState(true);
   const [context, setContext] = useState(null);
   const [rating, setRating] = useState('');  
   const [tab, setTab] = useState("Home");
@@ -32,9 +32,9 @@ function Main() {
   useEffect(() => {
     const fetchData = async () => {
       if (rating !== '' && rating !== '18203') return;
-      setSplashNegative(false);
+      setSplashNegative(true);
       try {
-        const response = await fetch(`http://192.168.0.110:4373/getCollections/${(tab != "Home") ? tab : "All"}${(rating) ? '?rating=' + rating : ''}`);
+        const response = await fetch(__PROXY__ + `/getCollections/${(tab != "Home") ? tab : "All"}${(rating) ? '?rating=' + rating : ''}`);
         const result = await response.json();
         const shuffledResult = result.sort(() => Math.random() - 0.5);
         setData(shuffledResult);

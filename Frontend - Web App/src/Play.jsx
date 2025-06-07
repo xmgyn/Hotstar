@@ -81,7 +81,7 @@ function Controller({ Props }) {
     } else {
       value = 3; // Covers 40-59 seconds
     }
-    fetch(`http://192.168.0.110:4373/streamImage/${Props.meta.id}/${minute <= 0 ? 0 : minute}/${value}`, { signal })
+    fetch(__PROXY__ + `/streamImage/${Props.meta.id}/${minute <= 0 ? 0 : minute}/${value}`, { signal })
       .then(response => response.blob())
       .then(blob => {
         const imgURL = URL.createObjectURL(blob);
@@ -274,12 +274,12 @@ function Play({ meta, details, set: { setPlay } }) {
     const video = videoRef.current;
     const audio = audioRef.current;
 
-    let videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video`;
-    let audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}`;
+    let videoSrc = __PROXY__ + `/play/${meta.id}/video`;
+    let audioSrc = __PROXY__ + `/play/${meta.id}/${Audio}`;
 
     if (meta.seriesid) {
-      videoSrc = `http://192.168.0.110:4373/play/${meta.id}/video?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
-      audioSrc = `http://192.168.0.110:4373/play/${meta.id}/${Audio}?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
+      videoSrc = __PROXY__ + `/play/${meta.id}/video?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
+      audioSrc = __PROXY__ + `/play/${meta.id}/${Audio}?season_id=${meta.seasonid}&series_id=${meta.seriesid}`;
     }
 
     Container = document.getElementById("Controller");

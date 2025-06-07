@@ -5,10 +5,10 @@ import { Icon as IconPack, Image as ImagePack } from "./Assets";
 // Complete
 async function CardBlob(id) {
   const urls = {
-    cardImg: `http://192.168.0.110:4373/getCard/${id}`,
-    iconImg: `http://192.168.0.110:4373/getIcon/${id}`,
-    previewImg: `http://192.168.0.110:4373/getPreview/${id}`,
-    backgroundImg: `http://192.168.0.110:4373/getBackground/${id}`,
+    cardImg: __PROXY__ + `/getCard/${id}`,
+    iconImg: __PROXY__ + `/getIcon/${id}`,
+    previewImg: __PROXY__ + `/getPreview/${id}`,
+    backgroundImg: __PROXY__ + `/getBackground/${id}`,
   };
 
   const fetchBlob = async (url) => {
@@ -39,6 +39,46 @@ function Splash() {
   )
 }
 
+function Settings() {
+  return (
+    <Fragment>
+      <div>Profile</div>
+      <div>Preferrence</div>
+      <div>Sessions</div>
+    </Fragment>
+  )
+}
+
+function About() {
+  return (
+    <Fragment>
+      <div>Legal Disclaimer</div>
+      <div>
+        This project, Hotstar, is an independent, open-source initiative made and hosted on GitHub by Mrigayan. It is not affiliated with, endorsed by, or associated with JioHotstar, Disney+ Hotstar, or any official streaming services.
+
+        This application is purely for educational and non-commercial purposes. The content provided through this project is not officially licensed, and users should ensure compliance with copyright laws applicable in their respective regions.
+
+        The developers of this project do not claim ownership of any movie or media content accessed through this application and bear no responsibility for its usage.
+      </div>
+      <div>
+        The domain hotstar.site is owned as part of this open-source project and is not an instance of typosquatting. Should an official request from Hotstar be made, the domain may be handed over accordingly.
+      </div>
+      <div>All icons used in this project are sourced from SVG Repo(svgrepo.com).</div>
+    </Fragment>
+  )
+}
+
+function Login() {
+  return (
+    <Fragment>
+      <div>Settings</div>
+      <div>Download The App</div>
+      <div>About</div>
+      <div>Logout</div>
+    </Fragment>
+  )
+}
+
 // Complete
 function Navbar({ changeTab }) {
   const shift = (event) => {
@@ -51,10 +91,19 @@ function Navbar({ changeTab }) {
 
   return (
     <div className="Navbar">
-      <div className="Nav-Item Nav-Active oxygen-bold" onClick={shift}>Home</div>
-      <div className="Nav-Item oxygen-bold" onClick={shift}>Movies</div>
-      <div className="Nav-Item oxygen-bold" onClick={shift}>Series</div>
-      <div className="Nav-Item oxygen-bold" onClick={shift}>Favourites</div>
+      <div className="Nav-Left">
+        <div className="Nav-Item oxygen-bold Nav-Blurred" onClick={shift}>Resume</div>
+        <div className="Nav-Item Nav-Active oxygen-bold" onClick={shift}>Home</div>
+        <div className="Nav-Item oxygen-bold" onClick={shift}>Movies</div>
+        <div className="Nav-Item oxygen-bold" onClick={shift}>Series</div>
+        <div className="Nav-Item oxygen-bold" onClick={shift}>Favourites</div>
+      </div>
+      <div className="Nav-Right">
+        <div className="Search">
+          <IconPack type="search" />
+        </div>
+        <div className="Nav-Login"></div>
+      </div>
     </div>
   )
 }
@@ -65,7 +114,7 @@ function Account({ rating, close, setRating }) {
   const LogsList = useRef(null);
 
   useEffect(function () {
-    fetch(`http://192.168.0.110:4373/logs`).then(data => {
+    fetch(__PROXY__ + `/logs`).then(data => {
       if (data.status === 200) return data.json();
       else return;
     }).then(response => {
@@ -275,7 +324,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
     }
 
     if (fetchControllerRef.current) fetchControllerRef.current.abort();
-    fetchControllerRef.current = new AbortController();  
+    fetchControllerRef.current = new AbortController();
     const { signal } = fetchControllerRef.current;
 
     const trailerView = document.querySelector('div.Preview-Trailer');
@@ -330,7 +379,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
       tagsContainer.appendChild(tagElement);
     });
 
-    fetch(`http://192.168.0.110:4373/getTrailer/${content._id}`, { signal }).then(data => {
+    fetch(__PROXY__ + `/getTrailer/${content._id}`, { signal }).then(data => {
       if (data.status === 200) return data.blob();
       else return;
     }).then(response => {
