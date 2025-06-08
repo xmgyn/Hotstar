@@ -456,10 +456,6 @@ div.Text-Heading {
   }
 }
 
-div.Hero-Play-Button:Hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
 div.Hero-Favourite {
   z-index: 2;
   height: 100%;
@@ -512,13 +508,7 @@ div.Arrow-Right {
   }
 }
 
-div.Arrow-Left:hover,
-div.Arrow-Right:hover {
-  svg {
-    fill: #ff0068;
-    stroke: #ff0068;
-  }
-}
+
 
 div.Arrow-Left:active,
 div.Arrow-Right:active {
@@ -709,10 +699,7 @@ div.Play-Item {
   padding: 2% 10%;
 }
 
-div.Play-Item:Hover {
-  background-color: #0000006e;
-  cursor: pointer;
-}
+
 
 
 div.Player {
@@ -786,15 +773,7 @@ div.Video-Seek-Bar {
   position: relative;
 }
 
-div.Video-Seek-Bar:hover {
-  height: 15%;
-  cursor: pointer;
 
-  div.Video-Seek-Current {
-    height: 30px;
-    width: 30px;
-  }
-}
 
 div.Video-Seek-Preview-Line {
   width: var(--seek-preview-width);
@@ -881,7 +860,7 @@ div.Controller-Bottom {
 
   }
 
-  div.Settings,
+  div.Settings-Panel,
   div.Extra {
     height: 26%;
     width: 8%;
@@ -904,7 +883,7 @@ div.Controller-Bottom {
       }
     }
 
-    div.Settings-Greyed {
+    div.Settings-Panel-Greyed {
       cursor: not-allowed;
     }
   }
@@ -947,5 +926,38 @@ div.Image-Preview-Cont {
     width: 100%;
     border-radius: 20px;
     object-fit: cover;
+  }
+}
+
+
+
+@media (hover: hover) {
+  div.Hero-Play-Button:Hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+
+  div.Arrow-Left:hover,
+  div.Arrow-Right:hover {
+    svg {
+      fill: #ff0068;
+      stroke: #ff0068;
+    }
+  }
+
+
+  div.Play-Item:Hover {
+    background-color: #0000006e;
+    cursor: pointer;
+  }
+
+
+  div.Video-Seek-Bar:hover {
+    height: 15%;
+    cursor: pointer;
+
+    div.Video-Seek-Current {
+      height: 30px;
+      width: 30px;
+    }
   }
 }

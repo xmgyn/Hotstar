@@ -40,9 +40,11 @@ function Controller({ Props }) {
     if (Props.PlayVideo) {
       video.pause();
       audio.pause();
+      Props.manualPause.current = true;
     } else {
       video.play();
       audio.play();
+      Props.manualPause.current = false;
     }
     Props.setPlayVideo(!Props.PlayVideo);
   }
@@ -58,6 +60,8 @@ function Controller({ Props }) {
       video.currentTime -= 10;
       audio.currentTime -= 10;
     }
+    const percentage = (video.currentTime / video.duration) * 100;
+    document.documentElement.style.setProperty("--seek-width", Math.floor(percentage) + '%');
   }
 
   const showImagePreview = (duration) => {
@@ -145,13 +149,17 @@ function Controller({ Props }) {
         let percentage = ((touch.clientX - rect.left) / rect.width) * 100;
         let percentageFloor = Math.max(0, Math.min(100, Math.round(percentage)));
         document.documentElement.style.setProperty("--seek-width", percentageFloor + '%');
+        document.documentElement.style.setProperty("--seek-preview-width", percentageFloor + '%');
         const time = (percentage * video.duration) / 100;
         video.currentTime = time;
         audio.currentTime = video.currentTime;
+        showImagePreview(time);
       };
 
       document.addEventListener("touchmove", updateProgress);
       document.addEventListener("touchend", () => {
+        document.getElementById("Image-Preview-Cont").style.setProperty("display", 'none');
+        document.documentElement.style.setProperty("--seek-preview-width", '0%');
         document.removeEventListener("touchmove", updateProgress);
         document.removeEventListener("touchend", arguments.callee);
       }, { once: true });
@@ -223,17 +231,17 @@ function Controller({ Props }) {
         {video && <div className="Video-Time nokora-bold">{!isNaN(video.duration) && TimeFormat(video.duration)}</div>}
       </div>
       <div className="Controller-Bottom">
-        <div className="Settings">
-          {Props.details.audio_profiles.length > 1 ? <div className="Settings-Audio-Button" onClick={() => Props.setShowAudioSelect(!Props.showAudioSelect)}><ImagePack type="audio" /></div> : <div className="Settings-Audio-Button Settings-Greyed"><ImagePack type="audio_disabled" /></div>}
-          {Props.details.subtitle ? <div className="Settings-Subtitle-Button"><ImagePack type="subtitle" /></div> : <div className="Settings-Subtitle-Button Settings-Greyed"><ImagePack type="subtitle_disabled" /></div>}
+        <div className="Settings-Panel">
+          {Props.details.audio_profiles.length > 1 ? <div className="Settings-Audio-Button" onClick={() => Props.setShowAudioSelect(!Props.showAudioSelect)}><ImagePack type="audio" /></div> : <div className="Settings-Audio-Button Settings-Panel-Greyed"><ImagePack type="audio_disabled" /></div>}
+          {Props.details.subtitle ? <div className="Settings-Subtitle-Button"><ImagePack type="subtitle" /></div> : <div className="Settings-Subtitle-Button Settings-Panel-Greyed"><ImagePack type="subtitle_disabled" /></div>}
 
         </div>
         <div className="Controls">
-          <div className="Controls-Previous"><ImagePack type="backward" /></div>
+          {Props.meta.seasonid ? <div className="Controls-Previous"><ImagePack type="backward" /></div> : <div />}
           <div className="Controls-Seek-Back" onClick={() => setSeekState(0)}><ImagePack type="previous" /></div>
           {Props.Loading ? <div className="Controls-Seek-Loading"><ImagePack type="loading" /></div> : <div className="Controls-Seek-Play" onClick={setPlayState}>{Props.PlayVideo ? <ImagePack type="pause" /> : <ImagePack type="play" />}</div>}
           <div className="Controls-Seek-Ahead" onClick={() => setSeekState(1)}><ImagePack type="next" /></div>
-          <div className="Controls-Next"><ImagePack type="forward" /></div>
+          {Props.meta.seasonid ? <div className="Controls-Next"><ImagePack type="forward" /></div> : <div />}
         </div>
         <div className="Extra">
           <div className="Extra-Info-Button" onClick={() => Props.setShowDetails(!Props.showDetails)}><ImagePack type="info" /></div>
@@ -257,7 +265,6 @@ function Controller({ Props }) {
 // }
 
 function Play({ meta, details, set: { setPlay } }) {
-  console.log(details)
   const [PlayVideo, setPlayVideo] = useState(false);
   const [Loading, setLoading] = useState(true);
   const [Audio, setAudio] = useState(details.audio_profiles[0].type);
@@ -269,6 +276,7 @@ function Play({ meta, details, set: { setPlay } }) {
 
   const videoRef = useRef(null);
   const audioRef = useRef(null);
+  const manualPause = useRef(true);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -291,21 +299,47 @@ function Play({ meta, details, set: { setPlay } }) {
     document.addEventListener("mousemove", () => {
       clearTimeout(timeout);
       Container.style.opacity = 1;
+      Container.style.pointerEvents = "auto";
       Player.style.cursor = "default";
       timeout = setTimeout(() => {
         if (video.paused) return;
         Container.style.opacity = 0;
+        Container.style.pointerEvents = "none";
         Player.style.cursor = "none";
       }, 3000);
     });
 
+    document.addEventListener("touchstart", () => {
+      if (Container.style.opacity === "0") {
+        clearTimeout(timeout);
+        Container.style.opacity = 1;
+        Container.style.pointerEvents = "auto";
+        Player.style.cursor = "default";
+
+        timeout = setTimeout(() => {
+          if (video.paused) return;
+          Container.style.opacity = 0;
+          Container.style.pointerEvents = "none";
+          Player.style.cursor = "none";
+        }, 3000);
+      }
+    });
+
 
     if (Hls.isSupported()) {
-      const hlsVideo = new Hls();
+      const hlsVideo = new Hls({
+        maxBufferLength: 30,
+        maxBufferSize: 60 * 1000 * 1000,
+        maxBufferHole: 0,
+      });
       hlsVideo.loadSource(videoSrc);
       hlsVideo.attachMedia(video);
 
-      const hlsAudio = new Hls();
+      const hlsAudio = new Hls({
+        maxBufferLength: 30,
+        maxBufferSize: 60 * 1000 * 1000,
+        maxBufferHole: 0,
+      });
       hlsAudio.loadSource(audioSrc);
       hlsAudio.attachMedia(audio);
 
@@ -326,34 +360,48 @@ function Play({ meta, details, set: { setPlay } }) {
       });
     }
 
-    video.addEventListener("playing", () => { document.getElementById("Controller").style.opacity = 1; setLoading(false) });
-    video.addEventListener("seeked", () => {
-      audio.currentTime = video.currentTime;
+    const syncPlaybackAfterSeek = () => {
       readystate++;
       if (readystate > 1) {
         setLoading(false);
-        console.log(video.paused)
-        if (video.paused) return;
+        readystate = 0;
+        if (manualPause.current) return;
+        audio.currentTime = video.currentTime;
         audio.play();
         video.play();
       }
+    };
+
+    video.addEventListener("seeked", () => {
+      syncPlaybackAfterSeek();
     });
     audio.addEventListener("seeked", () => {
-      readystate++;
-      if (readystate > 1) {
-        setLoading(false);
-        if (video.paused) return;
-        audio.play();
-        video.play();
-      }
+      syncPlaybackAfterSeek();
     });
-    video.addEventListener("waiting", () => { document.getElementById("Controller").style.opacity = 1; setLoading(true) });
+
+    const checkBuffering = () => {
+      const isBuffering = video.readyState < 3 || audio.readyState < 3;
+      if (isBuffering) {
+        document.getElementById("Controller").style.opacity = 1;
+        setLoading(true);
+      } else {
+        document.getElementById("Controller").style.opacity = 1;
+        setLoading(false);
+      }
+    };
+
+    video.addEventListener("waiting", checkBuffering);
+    audio.addEventListener("waiting", checkBuffering);
+    video.addEventListener("playing", checkBuffering);
+    audio.addEventListener("playing", checkBuffering);
+
     video.addEventListener("seeking", () => {
       setLoading(true);
       audio.pause();
       video.pause();
       readystate = 0;
     });
+
     video.addEventListener("timeupdate", () => {
       setCurrentTime(video.currentTime);
     });
@@ -369,6 +417,8 @@ function Play({ meta, details, set: { setPlay } }) {
       }
 
       document.documentElement.style.setProperty("--seek-width", '0%');
+
+      // Clean the fragment fetching, else the audio will start playing
     };
   }, [meta, Audio]);
 
@@ -377,7 +427,7 @@ function Play({ meta, details, set: { setPlay } }) {
       <div className="Play">
         <video ref={videoRef} id="video" crossOrigin="anonymous"></video>
         <audio ref={audioRef} id="audio" crossOrigin="anonymous"></audio>
-        <Controller Props={{ meta, details, Loading, PlayVideo, setPlayVideo, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
+        <Controller Props={{ meta, details, Loading, PlayVideo, setPlayVideo, manualPause, setPlay, videoRef, audioRef, currentTime, showDetails, setShowDetails, showAudioSelect, setShowAudioSelect }} />
       </div>
       {(showDetails || showAudioSelect) &&
         <div className="Overlay">

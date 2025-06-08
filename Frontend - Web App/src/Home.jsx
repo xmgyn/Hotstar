@@ -61,7 +61,7 @@ function About() {
         The developers of this project do not claim ownership of any movie or media content accessed through this application and bear no responsibility for its usage.
       </div>
       <div>
-        The domain hotstar.site is owned as part of this open-source project and is not an instance of typosquatting. Should an official request from Hotstar be made, the domain may be handed over accordingly.
+        This domain hotstar.site is owned as part of this open-source project and is not an instance of typosquatting or cybersquatting. Should an official request from Hotstar be made, the domain may be handed over accordingly.
       </div>
       <div>All icons used in this project are sourced from SVG Repo(svgrepo.com).</div>
     </Fragment>
@@ -444,7 +444,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
 
   // Completed
   function setFavourite() {
-    fetch(`http://192.168.0.110:4373/setFavourite/${currentView._id}`).then(data => {
+    fetch(__PROXY__ + `/setFavourite/${currentView._id}`).then(data => {
       if (data.status === 200) {
         set.setContext({ ...currentView, Favourite: !currentView.Favourite });
         set.setMessage({ type: "success", message: `You Liked ${currentView.Name}` })
@@ -524,7 +524,7 @@ function Home({ cardData, currentView, rating, tab, splashNegative, set }) {
     //   })
 
     set.setMeta({ id: contentid });
-    fetch(`http://192.168.0.110:4373/getDetails/${contentid}`)
+    fetch(__PROXY__ + `/getDetails/${contentid}`)
       .then(response => {
         if (response.ok) return response.json();
         else throw new Error("Media Not Playable");

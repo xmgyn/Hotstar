@@ -19,9 +19,9 @@ function Main() {
   const [message, setMessage] = useState(null);
 
   // Home Page
-  const [splashNegative, setSplashNegative] = useState(true);
+  const [splashNegative, setSplashNegative] = useState(false);
   const [context, setContext] = useState(null);
-  const [rating, setRating] = useState('');  
+  const [rating, setRating] = useState('18203');
   const [tab, setTab] = useState("Home");
 
   // Player Page
@@ -32,7 +32,7 @@ function Main() {
   useEffect(() => {
     const fetchData = async () => {
       if (rating !== '' && rating !== '18203') return;
-      setSplashNegative(true);
+      setSplashNegative(false);
       try {
         const response = await fetch(__PROXY__ + `/getCollections/${(tab != "Home") ? tab : "All"}${(rating) ? '?rating=' + rating : ''}`);
         const result = await response.json();
@@ -43,7 +43,11 @@ function Main() {
       }
     };
     fetchData();
-  }, [tab,rating]);
+
+    document.addEventListener('touchmove', function (event) {
+      if (event.scale !== 1) { event.preventDefault(); }
+    }, { passive: false });
+  }, [tab, rating]);
 
   return (
     <Fragment>
