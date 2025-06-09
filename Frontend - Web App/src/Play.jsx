@@ -282,6 +282,8 @@ function Play({ meta, details, set: { setPlay } }) {
     const video = videoRef.current;
     const audio = audioRef.current;
 
+    let hlsVideo, hlsAudio;
+
     let videoSrc = __PROXY__ + `/play/${meta.id}/video`;
     let audioSrc = __PROXY__ + `/play/${meta.id}/${Audio}`;
 
@@ -293,7 +295,6 @@ function Play({ meta, details, set: { setPlay } }) {
     Container = document.getElementById("Controller");
     Player = document.getElementById("Player");
 
-    let readystate = 0;
     let timeout;
 
     document.addEventListener("mousemove", () => {
@@ -325,9 +326,8 @@ function Play({ meta, details, set: { setPlay } }) {
       }
     });
 
-
     if (Hls.isSupported()) {
-      const hlsVideo = new Hls({
+      hlsVideo = new Hls({
         maxBufferLength: 30,
         maxBufferSize: 60 * 1000 * 1000,
         maxBufferHole: 0,
@@ -335,7 +335,7 @@ function Play({ meta, details, set: { setPlay } }) {
       hlsVideo.loadSource(videoSrc);
       hlsVideo.attachMedia(video);
 
-      const hlsAudio = new Hls({
+      hlsAudio = new Hls({
         maxBufferLength: 30,
         maxBufferSize: 60 * 1000 * 1000,
         maxBufferHole: 0,
@@ -347,39 +347,51 @@ function Play({ meta, details, set: { setPlay } }) {
         new Promise((resolve) => hlsVideo.on(Hls.Events.MANIFEST_PARSED, resolve)),
         new Promise((resolve) => hlsAudio.on(Hls.Events.MANIFEST_PARSED, resolve))
       ]).then(() => {
-        setLoading(false);
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = videoSrc;
-      audio.src = audioSrc;
-      video.addEventListener('loadedmetadata', () => {
-        setLoading(false);
-      });
-      video.addEventListener('canplaythrough', () => {
-        setLoading(false);
+        video.currentTime = 0.1;
+        audio.currentTime = 0.1;
+        //setLoading(false);
       });
     }
+    // else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    //   video.src = videoSrc;
+    //   audio.src = audioSrc;
+    //   video.addEventListener('loadedmetadata', () => {
+    //     setLoading(false);
+    //   });
+    //   video.addEventListener('canplaythrough', () => {
+    //     setLoading(false);
+    //   });
+    // }
+
+    video.addEventListener("canplay", () => {
+      console.log("video can play")
+    })
+
+    audio.addEventListener("canplay", () => {
+      console.log("audio can play")
+    })
 
     const syncPlaybackAfterSeek = () => {
-      readystate++;
-      if (readystate > 1) {
+      if (video.readyState > 3 && audio.readyState > 3) {
+        console.log("syncPlaybackAfterSeek is Fired")
         setLoading(false);
-        readystate = 0;
         if (manualPause.current) return;
-        audio.currentTime = video.currentTime;
         audio.play();
         video.play();
       }
     };
 
     video.addEventListener("seeked", () => {
+      console.log("video seeked is Fired")
       syncPlaybackAfterSeek();
     });
     audio.addEventListener("seeked", () => {
+      console.log("audio seeked is Fired")
       syncPlaybackAfterSeek();
     });
 
     const checkBuffering = () => {
+      console.log("checkBuffering is Fired")
       const isBuffering = video.readyState < 3 || audio.readyState < 3;
       if (isBuffering) {
         document.getElementById("Controller").style.opacity = 1;
@@ -399,7 +411,6 @@ function Play({ meta, details, set: { setPlay } }) {
       setLoading(true);
       audio.pause();
       video.pause();
-      readystate = 0;
     });
 
     video.addEventListener("timeupdate", () => {
@@ -407,14 +418,36 @@ function Play({ meta, details, set: { setPlay } }) {
     });
 
     return () => {
-      if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.removeEventListener('loadedmetadata', () => setLoading(false));
-        video.removeEventListener('canplaythrough', () => setLoading(false));
-        video.removeEventListener('playing', () => setLoading(false));
-        video.removeEventListener('seeked', () => setLoading(false));
-        video.removeEventListener('waiting', () => setLoading(false));
-        video.removeEventListener('seeking', () => setLoading(false));
+      if (video && audio) {
+        // Removing event listeners for video
+        video.removeEventListener("seeked", syncPlaybackAfterSeek);
+        video.removeEventListener("waiting", checkBuffering);
+        video.removeEventListener("playing", checkBuffering);
+        video.removeEventListener("seeking", () => {
+          setLoading(true);
+          audio.pause();
+          video.pause();
+        });
+        video.removeEventListener("timeupdate", () => {
+          setCurrentTime(video.currentTime);
+        });
+
+        // Removing event listeners for audio
+        audio.removeEventListener("seeked", syncPlaybackAfterSeek);
+        audio.removeEventListener("waiting", checkBuffering);
+        audio.removeEventListener("playing", checkBuffering);
       }
+
+      clearTimeout(timeout);
+
+      // Cleanup HLS instances if they exist
+      if (Hls.isSupported()) {
+        hlsVideo.detachMedia();
+        hlsVideo.destroy();
+        hlsAudio.detachMedia();
+        hlsAudio.destroy();
+      }
+
 
       document.documentElement.style.setProperty("--seek-width", '0%');
 

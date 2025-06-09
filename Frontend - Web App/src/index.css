@@ -930,6 +930,18 @@ div.Image-Preview-Cont {
 }
 
 
+@media screen and (orientation: portrait) {
+  div.Player {
+    transform: rotate(90deg);
+    width: 100vh;
+    height: 100vw;
+    background: black;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+
 
 @media (hover: hover) {
   div.Hero-Play-Button:Hover {
