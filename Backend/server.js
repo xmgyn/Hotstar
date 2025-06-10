@@ -2,12 +2,17 @@ import Express from 'express'
 import { MongoClient, ObjectId } from 'mongodb'
 import cors from 'cors'
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 import fs, { copyFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 
 const uri = 'mongodb://localhost:27020';
 const client = new MongoClient(uri);
 const db = client.db('movie_database');
-const FRONTEND_DIR = "/usr/local/bin/Hotstar/Frontend";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const MEDIA_DIR = "/usr/local/bin/Hotstar/Media";
 
 const logs = []
@@ -49,18 +54,27 @@ const update = async (collection, id, update, projection) => {
     }
 };
 
+const app_public = Express()
+const app_private = Express()
 
+app_public.use(cors())
+app_public.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+app_public.use('/', Express.static(path.join(__dirname, '../Frontend'), { maxAge: '1h' }));
 
-const app = Express()
-app.use(cors())
-
-app.use('/', Express.static(FRONTEND_DIR));
+const pingLimiter = rateLimit({
+    windowMs: 60 * 1000, 
+    max: 10, 
+    message: "Too many requests, slow down!"
+});
 
 /* 
 Completed
 localhost:4373/ping
 */
-app.get('/ping', function (req, res) {
+app_public.get('/ping', pingLimiter, function (req, res) {
     res.sendStatus(200);
 })
 
@@ -68,12 +82,12 @@ app.get('/ping', function (req, res) {
 Completed
 localhost:4373/logs
 */
-app.get('/logs', function (req, res) {
+app_private.get('/logs', function (req, res) {
     res.json(Object.assign({}, logs));
 })
 
 
-app.get('/getCollections/:category', async function (req, res) {
+app_public.get('/getCollections/:category', async function (req, res) {
     try {
         if (req.params.category == "All") {
             let { rating } = req.query;
@@ -133,7 +147,7 @@ app.get('/getCollections/:category', async function (req, res) {
 Completed
 localhost:4373/getDetails/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/getDetails/:contentId', async function (req, res) {
+app_public.get('/getDetails/:contentId', async function (req, res) {
     try {
         const result = await fetch("Details", { _id: new ObjectId(req.params.contentId) }, { });
         if (!result) throw new Error('No Details Available');
@@ -149,7 +163,7 @@ app.get('/getDetails/:contentId', async function (req, res) {
 Completed
 localhost:4373/getTrailer/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/getTrailer/:contentId', async function (req, res) {
+app_public.get('/getTrailer/:contentId', async function (req, res) {
     let filePath = path.join(MEDIA_DIR, req.params.contentId, 'trailer.mp4');
     if (!fs.existsSync(filePath)) return res.status(404).send('File Not Found');
     res.setHeader('Content-Type', 'video/mp4');
@@ -160,7 +174,7 @@ app.get('/getTrailer/:contentId', async function (req, res) {
 Completed
 localhost:4373/setFavourite/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/setFavourite/:contentId', async function (req, res) {
+app_public.get('/setFavourite/:contentId', async function (req, res) {
     try {
         const category = await fetch("All", { _id: new ObjectId(req.params.contentId) }, { "_id": 0, "Favourite": 1 });
         await update("All", req.params.contentId, {
@@ -178,7 +192,7 @@ app.get('/setFavourite/:contentId', async function (req, res) {
 Completed
 localhost:4373/getBackground/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/getBackground/:contentId', function (req, res) {
+app_public.get('/getBackground/:contentId', function (req, res) {
     const filePath = path.join(MEDIA_DIR, req.params.contentId, 'background.png');
     if (!fs.existsSync(filePath)) { if (!res.headersSent) res.status(404).send('File Not Found'); }
     res.sendFile(filePath, function (error) {
@@ -193,7 +207,7 @@ app.get('/getBackground/:contentId', function (req, res) {
 Completed
 localhost:4373/getCard/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/getCard/:contentId', function (req, res) {
+app_public.get('/getCard/:contentId', function (req, res) {
     const filePath = path.join(MEDIA_DIR, req.params.contentId, 'card.png');
     if (!fs.existsSync(filePath)) return res.status(404).send('File Not Found'); 
     res.sendFile(filePath, function (error) {
@@ -208,7 +222,7 @@ app.get('/getCard/:contentId', function (req, res) {
 Completed
 localhost:4373/getPreview/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/getPreview/:contentId', function (req, res) {
+app_public.get('/getPreview/:contentId', function (req, res) {
     const filePath = path.join(MEDIA_DIR, req.params.contentId, 'preview.png');
     if (!fs.existsSync(filePath)) return res.status(404).send('File Not Found'); 
     res.sendFile(filePath, function (error) {
@@ -223,7 +237,7 @@ app.get('/getPreview/:contentId', function (req, res) {
 Completed
 localhost:4373/getIcon/67eeeac7ca5dc42e95d2f24e
 */
-app.get('/getIcon/:contentId', function (req, res) {
+app_public.get('/getIcon/:contentId', function (req, res) {
     const filePath = path.join(MEDIA_DIR, req.params.contentId, 'icon.png');
     if (!fs.existsSync(filePath)) return res.status(404).send('File Not Found'); 
     res.sendFile(filePath, function (error) {
@@ -239,7 +253,7 @@ Completed
 For Movies : localhost:4373/getSubtitle/67eeeac7ca5dc42e95d2f24e
 For Series : localhost:4373/getSubtitle/681a451a9895e2705697ede9?series_id=681a3f8f9895e2705697eddc&season_id=681a44ed9895e2705697ede8
 */
-app.get('/getSubtitle/:contentId', async function (req, res) {
+app_public.get('/getSubtitle/:contentId', async function (req, res) {
     try {
         const { series_id, season_id } = req.query;
         let filePath = path.join(MEDIA_DIR, req.params.contentId, 'subtitles_en.vtt');
@@ -258,7 +272,7 @@ Completed
 For Movies : localhost:4373/play/67eeeac7ca5dc42e95d2f24e/video
 For Series : localhost:4373/play/681a451a9895e2705697ede9/audio_english?series_id=681a3f8f9895e2705697eddc&season_id=681a44ed9895e2705697ede8
 */
-app.get('/play/:contentId/:type', async function (req, res) {
+app_public.get('/play/:contentId/:type', async function (req, res) {
     const { series_id, season_id } = req.query;
     let filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.type + '.m3u8');
     if (series_id && season_id) filePath = path.join(MEDIA_DIR, series_id, season_id, req.params.contentId, req.params.type + '.m3u8');
@@ -272,14 +286,14 @@ Completed
 For Movies : localhost:4373/chunk/67eeeac7ca5dc42e95d2f24e/video/segment_001.ts
 For Series : localhost:4373/chunk/67eeeac7ca5dc42e95d2f24e/6817190261ae4f0036444125/680c6ae1e4fd19fd42e6aea4/audio_en/segment_001.ts
 */
-app.get('/chunk/:contentId/:type/:segment', (req, res) => {
+app_public.get('/chunk/:contentId/:type/:segment', (req, res) => {
     if (!(req.params.type in FOLDER)) res.status(404).send('Invalid Type');
     const filePath = path.join(MEDIA_DIR, req.params.contentId, FOLDER[req.params.type], req.params.segment);
     if (!fs.existsSync(filePath)) res.status(404).send('Segment Not Found');
     res.setHeader('Content-Type', 'video/mp2t');
     fs.createReadStream(filePath).pipe(res);
 });
-app.get('/chunk/:contentId/:seasonId/:episodeId/:type/:segment', (req, res) => {
+app_public.get('/chunk/:contentId/:seasonId/:episodeId/:type/:segment', (req, res) => {
     if (!(req.params.type in FOLDER)) res.status(404).send('Invalid Type');
     const filePath = path.join(MEDIA_DIR, req.params.contentId, req.params.seasonId, req.params.episodeId, FOLDER[req.params.type], req.params.segment);
     if (!fs.existsSync(filePath)) res.status(404).send('Segment Not Found');
@@ -292,7 +306,7 @@ Completed
 For Movies : localhost:4373/streamImage/67eeeac7ca5dc42e95d2f24e/3/3
 For Series : localhost:4373/streamImage/681a451a9895e2705697ede9/3/3?series_id=681a3f8f9895e2705697eddc&season_id=681a44ed9895e2705697ede8
 */
-app.get('/streamImage/:contentId/:minute/:phase', function (req, res) {
+app_public.get('/streamImage/:contentId/:minute/:phase', function (req, res) {
     try {
         const { series_id, season_id } = req.query;
         let filePath = path.join(MEDIA_DIR, req.params.contentId, 'Previews', 'thumb_minute_' + req.params.minute + '_' + req.params.phase + '_grid.jpg');
@@ -305,4 +319,5 @@ app.get('/streamImage/:contentId/:minute/:phase', function (req, res) {
     }
 })
 
-app.listen(4373);
+app_public.listen(4373);
+app_private.listen(4374);

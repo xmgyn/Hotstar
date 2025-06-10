@@ -113,27 +113,27 @@ function Account({ rating, close, setRating }) {
 
   const LogsList = useRef(null);
 
-  useEffect(function () {
-    fetch(__PROXY__ + `/logs`).then(data => {
-      if (data.status === 200) return data.json();
-      else return;
-    }).then(response => {
-      if (!response) return;
-      const processedLogs = Object.values(response).reverse().slice(0, 30);
-      LogsList.current.innerHTML = '';
-      processedLogs.map((log, index) => {
-        const tr = document.createElement("tr");
-        tr.key = index;
-        const tdTimestamp = document.createElement("td");
-        tdTimestamp.textContent = log.timestamp;
-        const tdMessage = document.createElement("td");
-        tdMessage.textContent = log.message;
-        tr.appendChild(tdTimestamp);
-        tr.appendChild(tdMessage);
-        LogsList.current.appendChild(tr);
-      });
-    })
-  }, [])
+  // useEffect(function () {
+  //   fetch(__PROXY__ + `/logs`).then(data => {
+  //     if (data.status === 200) return data.json();
+  //     else return;
+  //   }).then(response => {
+  //     if (!response) return;
+  //     const processedLogs = Object.values(response).reverse().slice(0, 30);
+  //     LogsList.current.innerHTML = '';
+  //     processedLogs.map((log, index) => {
+  //       const tr = document.createElement("tr");
+  //       tr.key = index;
+  //       const tdTimestamp = document.createElement("td");
+  //       tdTimestamp.textContent = log.timestamp;
+  //       const tdMessage = document.createElement("td");
+  //       tdMessage.textContent = log.message;
+  //       tr.appendChild(tdTimestamp);
+  //       tr.appendChild(tdMessage);
+  //       LogsList.current.appendChild(tr);
+  //     });
+  //   })
+  // }, [])
 
   return (
     <Fragment>
