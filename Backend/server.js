@@ -70,6 +70,7 @@ app_public.use(session({
     cookie: {
         httpOnly: true,
         secure: true, 
+        sameSite: strict,
         maxAge: 1000 * 60 * 60 * 72 
     }
 }));
@@ -341,10 +342,12 @@ app_public.get('/streamImage/:contentId/:minute/:phase', function (req, res) {
 app_public.listen(4373);
 
 /*
-Note down each IP address visiting, their session ID and note down the routes
+Note down each IP address visiting, their session ID, device fingerprint and note down the routes
 Note down logs with each session ID
 Allow At Max 100 Session IDs
-
+Session ID to only those who have logged in, guests not allowed, login using Phone Number Verification Only
+Avoid Using Any Disposible Phone Numbers
+app_private/security_flags have any user with multiple failed login, 
 */
 
 
