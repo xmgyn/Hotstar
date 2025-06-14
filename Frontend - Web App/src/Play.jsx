@@ -363,17 +363,12 @@ function Play({ meta, details, set: { setPlay } }) {
     //   });
     // }
 
-    video.addEventListener("canplay", () => {
-      console.log("video can play")
-    })
-
-    audio.addEventListener("canplay", () => {
-      console.log("audio can play")
-    })
-
+    let refire = false;
     const syncPlaybackAfterSeek = () => {
-      if (video.readyState > 3 && audio.readyState > 3) {
-        console.log("syncPlaybackAfterSeek is Fired")
+      if (!refire && video.readyState > 3 && audio.readyState > 3) {
+        console.log(`syncPlaybackAfterSeek is Fired, refire : ${refire}`)
+        if (Math.abs(audio.currentTime - video.currentTime) > 0.01) audio.currentTime = video.currentTime;
+        refire = true;
         setLoading(false);
         if (manualPause.current) return;
         audio.play();
@@ -408,6 +403,7 @@ function Play({ meta, details, set: { setPlay } }) {
     audio.addEventListener("playing", checkBuffering);
 
     video.addEventListener("seeking", () => {
+      refire = false;
       setLoading(true);
       audio.pause();
       video.pause();
@@ -415,6 +411,16 @@ function Play({ meta, details, set: { setPlay } }) {
 
     video.addEventListener("timeupdate", () => {
       setCurrentTime(video.currentTime);
+    });
+
+    // Configure This Buffer Bar
+    video.addEventListener("progress", () => {
+      // if (video.buffered.length > 0) {
+      //   let bufferedEnd = video.buffered.end(video.buffered.length - 1);
+      //   let duration = video.duration;
+      //   let percent = (bufferedEnd / duration) * 100;
+      //   bufferedBar.style.width = percent + "%";
+      // }
     });
 
     return () => {

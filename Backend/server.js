@@ -7,23 +7,27 @@ import fs, { copyFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 
-const uri = 'mongodb://localhost:27020';
-const client = new MongoClient(uri);
-const db = client.db('movie_database');
+import apiV1 from './apiV1';
+
+const app_public = Express();
+const app_private = Express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const uri = 'mongodb://localhost:27020';
+const client = new MongoClient(uri);
+const db = client.db('movie_database');
+
 const MEDIA_DIR = "/usr/local/bin/Hotstar/Media";
-
-const logs = []
-
-// Hardcode To Prevent URL Attacks
 const FOLDER = {
+    // Hardcoded To Prevent URL Attacks
     "audio_hin": "Audio_Hindi",
     "audio_en": "Audio_English",
     "video": "Video"
 }
+
+const logs = []
 
 try {
     await client.connect();
@@ -56,8 +60,7 @@ const update = async (collection, id, update, projection) => {
     }
 };
 
-const app_public = Express()
-const app_private = Express()
+
 
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -91,10 +94,14 @@ app_public.use((req, res, next) => {
 });
 app_public.use('/', Express.static(path.join(__dirname, '../Frontend'), { maxAge: '1h' }));
 
+app.use('/api/v1', apiV1);
+
+
+
 const pingLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 10,
-    message: "Too many requests, slow down!"
+    message: "Too Many Requests!"
 });
 
 /* 
@@ -105,13 +112,9 @@ app_public.get('/ping', pingLimiter, function (req, res) {
     res.sendStatus(200);
 })
 
-
-
-app_public.get('/getCollections/:category', async function (req, res) {
+app_public.get('/getCollections/:collectionId/:category', async function (req, res) {
     try {
-        if (req.params.category == "All") {
-            let { rating } = req.query;
-            rating = (rating == 18203) ? true : false;
+        if (req.params.category == "Home") {
             const result = await (db.collection("All").find({}, { "_id": 1, "Category": 1 })).toArray();
             const filteredResult = (await Promise.all(result.map(async (entry) => {
                 const update = await fetch(entry.Category, { _id: new ObjectId(entry._id) }, {});
@@ -125,7 +128,7 @@ app_public.get('/getCollections/:category', async function (req, res) {
         }
         else if (req.params.category == "Movies" || req.params.category == "Series") {
             let { rating } = req.query;
-            rating = (rating == 18203) ? true : false;
+            rating = rating === "true";
             const result = await (db.collection(req.params.category).find({}, {})).toArray();
 
             const filteredResult = (await Promise.all(
@@ -142,7 +145,21 @@ app_public.get('/getCollections/:category', async function (req, res) {
         }
         else if (req.params.category == "Favourites") {
             let { rating } = req.query;
-            rating = (rating == 18203) ? true : false;
+            rating = rating === "true";
+            const result = await (db.collection("All").find({}, { "_id": 1, "Category": 1 })).toArray();
+            const filteredResult = (await Promise.all(result.map(async (entry) => {
+                const update = await fetch(entry.Category, { _id: new ObjectId(entry._id) }, {});
+                update.Type = entry.Category;
+                update.Favourite = entry.Favourite;
+                if (update.Favourite === true && ((!rating) && (update.R !== true))) return update;
+                else if (update.Favourite === true && rating) return update;
+            }))).filter((update) => update != null);
+            logs.push({ timestamp: new Date().toISOString(), message: 'Sucessfully Get Collection Favourites' });
+            if (!res.headersSent) res.status(200).send(filteredResult);
+        }
+        else if (req.params.category == "Resume") {
+            let { rating } = req.query;
+            rating = rating === "true";
             const result = await (db.collection("All").find({}, { "_id": 1, "Category": 1 })).toArray();
             const filteredResult = (await Promise.all(result.map(async (entry) => {
                 const update = await fetch(entry.Category, { _id: new ObjectId(entry._id) }, {});
